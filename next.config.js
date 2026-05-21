@@ -3,7 +3,6 @@
  * for Docker builds.
  */
 import "./src/env.js";
-import { withUploadThing } from "uploadthing/next";
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -19,5 +18,4 @@ const config = {
   },
 };
 
-// Wrap the config with withUploadThing to handle image uploads safely
-export default withUploadThing(config);
+export default config;
