@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 // Drop-in components for the frontend
 // Usage:
@@ -6,18 +6,18 @@
 //   <UploadDropzone endpoint="slideImage" onClientUploadComplete={...} />
 
 import {
+  generateReactHelpers,
   generateUploadButton,
   generateUploadDropzone,
-  generateReactHelpers,
-} from "@uploadthing/react";
+} from '@uploadthing/react'
 
-import type { OurFileRouter } from "@/server/uploadthing/core";
+import type { OurFileRouter } from '@/server/uploadthing/core'
 
 // Pre-built UI components — typed to your router
-export const UploadButton = generateUploadButton<OurFileRouter>();
-export const UploadDropzone = generateUploadDropzone<OurFileRouter>();
+export const UploadButton = generateUploadButton<OurFileRouter>()
+export const UploadDropzone = generateUploadDropzone<OurFileRouter>()
 
 // Low-level hook for custom upload UI
 // Usage: const { startUpload, isUploading } = useUploadThing("productImages")
 export const { useUploadThing, uploadFiles } =
-  generateReactHelpers<OurFileRouter>();
+  generateReactHelpers<OurFileRouter>()

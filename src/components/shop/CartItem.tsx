@@ -1,44 +1,48 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import Link from "next/link";
-import { Trash2 } from "lucide-react";
-import { useStore } from "@/lib/store";
-import { type CartItem as CartItemType } from "@/lib/types";
-import { formatPrice, cn } from "@/lib/utils";
+import { Trash2 } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useStore } from '@/lib/store'
+import { type CartItem as CartItemType } from '@/lib/types'
+import { cn, formatPrice } from '@/lib/utils'
 
 const fallbackGradients: Record<string, string> = {
-  rocket: "from-slate-900 to-blue-950",
-  bijli: "from-violet-950 to-purple-950",
-  atom: "from-emerald-950 to-green-950",
-  "flower-pot": "from-amber-950 to-yellow-950",
-  sparklers: "from-orange-950 to-red-950",
-  chakkar: "from-neutral-900 to-stone-950",
-};
+  rocket: 'from-slate-900 to-blue-950',
+  bijli: 'from-violet-950 to-purple-950',
+  atom: 'from-emerald-950 to-green-950',
+  'flower-pot': 'from-amber-950 to-yellow-950',
+  sparklers: 'from-orange-950 to-red-950',
+  chakkar: 'from-neutral-900 to-stone-950',
+}
 
 const fallbackEmoji: Record<string, string> = {
-  rocket: "🚀", bijli: "⚡", atom: "💥",
-  "flower-pot": "🌸", sparklers: "✨", chakkar: "🌀",
-};
+  rocket: '🚀',
+  bijli: '⚡',
+  atom: '💥',
+  'flower-pot': '🌸',
+  sparklers: '✨',
+  chakkar: '🌀',
+}
 
 type Props = {
-  item: CartItemType;
-};
+  item: CartItemType
+}
 
 export function CartItem({ item }: Props) {
-  const { updateQty, removeFromCart } = useStore();
-  const { product, quantity } = item;
+  const { updateQty, removeFromCart } = useStore()
+  const { product, quantity } = item
 
   const gradient =
-    fallbackGradients[product.categorySlug] ?? "from-neutral-900 to-stone-950";
-  const emoji = fallbackEmoji[product.categorySlug] ?? "🎆";
+    fallbackGradients[product.categorySlug] ?? 'from-neutral-900 to-stone-950'
+  const emoji = fallbackEmoji[product.categorySlug] ?? '🎆'
 
   return (
     <div className="flex gap-3 rounded-2xl border border-orange-100 bg-white p-3">
       {/* Image */}
       <Link href={`/products/${product.id}`} className="flex-shrink-0">
         <div className="relative h-20 w-20 overflow-hidden rounded-xl">
-          {product.images[0] && product.images[0].includes("utfs.io") ? (
+          {product.images[0] && product.images[0].includes('utfs.io') ? (
             <Image
               src={product.images[0]}
               alt={product.name}
@@ -48,8 +52,8 @@ export function CartItem({ item }: Props) {
           ) : (
             <div
               className={cn(
-                "flex h-full w-full items-center justify-center bg-gradient-to-br",
-                gradient
+                'flex h-full w-full items-center justify-center bg-gradient-to-br',
+                gradient,
               )}
             >
               <span className="text-2xl">{emoji}</span>
@@ -116,5 +120,5 @@ export function CartItem({ item }: Props) {
         </div>
       </div>
     </div>
-  );
+  )
 }

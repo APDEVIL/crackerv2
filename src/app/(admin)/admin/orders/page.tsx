@@ -1,91 +1,92 @@
-"use client";
+'use client'
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
-import { Search, ChevronRight, SlidersHorizontal } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
-} from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { formatPrice, formatDate, cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/react";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn, formatDate, formatPrice } from '@/lib/utils'
+import type { RouterOutputs } from '@/trpc/react'
+import { api } from '@/trpc/react'
 
-type Order = RouterOutputs["orders"]["listAll"][number];
+type Order = RouterOutputs['orders']['listAll'][number]
 
 const STATUS_COLOR: Record<string, string> = {
-  pending:   "bg-amber-100 text-amber-700",
-  confirmed: "bg-blue-100 text-blue-700",
-  shipped:   "bg-purple-100 text-purple-700",
-  delivered: "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-700",
-};
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  shipped: 'bg-purple-100 text-purple-700',
+  delivered: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
+}
 
 export default function AdminOrdersPage() {
-  const [search, setSearch]     = useState("");
-  const [status, setStatus]     = useState("all");
-  const [district, setDistrict] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo]     = useState("");
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('all')
+  const [district, setDistrict] = useState('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   const { data: orders = [], isLoading } = api.orders.listAll.useQuery(
-    status !== "all"
-      ? { status: status as Order["status"] }
-      : {}
-  );
+    status !== 'all' ? { status: status as Order['status'] } : {},
+  )
 
   // Unique districts derived from live data
   const districts = useMemo(
     () => [...new Set(orders.map((o) => o.addrDistrict))].sort(),
-    [orders]
-  );
+    [orders],
+  )
 
   const filtered = useMemo(() => {
-    let list = [...orders];
+    let list = [...orders]
 
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.toLowerCase()
       list = list.filter(
         (o) =>
           o.orderNumber.toLowerCase().includes(q) ||
-          o.addrName.toLowerCase().includes(q)
-      );
+          o.addrName.toLowerCase().includes(q),
+      )
     }
 
-    if (district !== "all") {
-      list = list.filter((o) => o.addrDistrict === district);
+    if (district !== 'all') {
+      list = list.filter((o) => o.addrDistrict === district)
     }
 
     if (dateFrom) {
-      list = list.filter(
-        (o) => new Date(o.createdAt) >= new Date(dateFrom)
-      );
+      list = list.filter((o) => new Date(o.createdAt) >= new Date(dateFrom))
     }
 
     if (dateTo) {
       list = list.filter(
-        (o) =>
-          new Date(o.createdAt) <= new Date(dateTo + "T23:59:59")
-      );
+        (o) => new Date(o.createdAt) <= new Date(dateTo + 'T23:59:59'),
+      )
     }
 
     return list.sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }, [orders, search, district, dateFrom, dateTo]);
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+  }, [orders, search, district, dateFrom, dateTo])
 
-  const activeFilters = [
-    district !== "all",
-    !!dateFrom,
-    !!dateTo,
-  ].filter(Boolean).length;
+  const activeFilters = [district !== 'all', !!dateFrom, !!dateTo].filter(
+    Boolean,
+  ).length
 
   if (isLoading) {
     return (
@@ -93,7 +94,7 @@ export default function AdminOrdersPage() {
         <Skeleton className="h-9 w-full rounded-xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
-    );
+    )
   }
 
   return (
@@ -116,9 +117,13 @@ export default function AdminOrdersPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            {["pending","confirmed","shipped","delivered","cancelled"].map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
-            ))}
+            {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map(
+              (s) => (
+                <SelectItem key={s} value={s} className="capitalize">
+                  {s}
+                </SelectItem>
+              ),
+            )}
           </SelectContent>
         </Select>
 
@@ -154,7 +159,9 @@ export default function AdminOrdersPage() {
                   <SelectContent>
                     <SelectItem value="all">All Districts</SelectItem>
                     {districts.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                      <SelectItem key={d} value={d}>
+                        {d}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -185,9 +192,9 @@ export default function AdminOrdersPage() {
                 variant="outline"
                 className="w-full rounded-xl text-sm"
                 onClick={() => {
-                  setDistrict("all");
-                  setDateFrom("");
-                  setDateTo("");
+                  setDistrict('all')
+                  setDateFrom('')
+                  setDateTo('')
                 }}
               >
                 Clear Filters
@@ -196,7 +203,9 @@ export default function AdminOrdersPage() {
           </SheetContent>
         </Sheet>
 
-        <p className="ml-auto text-xs text-gray-400">{filtered.length} orders</p>
+        <p className="ml-auto text-xs text-gray-400">
+          {filtered.length} orders
+        </p>
       </div>
 
       {/* Table */}
@@ -205,7 +214,15 @@ export default function AdminOrdersPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-orange-100 bg-gray-50/70">
               <tr>
-                {["Order ID","Customer","Date","Items","Status","Total",""].map((h) => (
+                {[
+                  'Order ID',
+                  'Customer',
+                  'Date',
+                  'Items',
+                  'Status',
+                  'Total',
+                  '',
+                ].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500"
@@ -218,19 +235,29 @@ export default function AdminOrdersPage() {
             <tbody className="divide-y divide-orange-50">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-sm text-gray-400">
+                  <td
+                    colSpan={7}
+                    className="py-16 text-center text-sm text-gray-400"
+                  >
                     No orders found
                   </td>
                 </tr>
               ) : (
                 filtered.map((order) => (
-                  <tr key={order.id} className="hover:bg-orange-50/30 transition">
+                  <tr
+                    key={order.id}
+                    className="hover:bg-orange-50/30 transition"
+                  >
                     <td className="px-4 py-3 font-mono text-xs font-medium text-gray-700">
                       {order.orderNumber}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{order.addrName}</p>
-                      <p className="text-xs text-gray-400">{order.addrDistrict}</p>
+                      <p className="font-medium text-gray-900">
+                        {order.addrName}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {order.addrDistrict}
+                      </p>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500">
                       {formatDate(order.createdAt.toString())}
@@ -239,10 +266,12 @@ export default function AdminOrdersPage() {
                       {order.items.length}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={cn(
-                        "rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize",
-                        STATUS_COLOR[order.status]
-                      )}>
+                      <span
+                        className={cn(
+                          'rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize',
+                          STATUS_COLOR[order.status],
+                        )}
+                      >
                         {order.status}
                       </span>
                     </td>
@@ -264,5 +293,5 @@ export default function AdminOrdersPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

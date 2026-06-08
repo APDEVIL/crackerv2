@@ -1,54 +1,46 @@
-"use client";
+'use client'
 
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
-import { useCallback, useEffect, useState, useRef } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { cn } from "@/lib/utils";
+import Autoplay from 'embla-carousel-autoplay'
+import useEmblaCarousel from 'embla-carousel-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 export function HeroCarousel() {
   // ✅ fetches from DB — admin changes reflect immediately
-  const { data: slides = [], isLoading } = api.slides.list.useQuery();
+  const { data: slides = [], isLoading } = api.slides.list.useQuery()
 
-  const autoplay = useRef(
-    Autoplay({ delay: 4500, stopOnInteraction: false })
-  );
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true },
-    [autoplay.current]
-  );
-  const [selected, setSelected] = useState(0);
+  const autoplay = useRef(Autoplay({ delay: 4500, stopOnInteraction: false }))
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
+    autoplay.current,
+  ])
+  const [selected, setSelected] = useState(0)
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-  const scrollTo   = useCallback(
-    (i: number) => emblaApi?.scrollTo(i),
-    [emblaApi]
-  );
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
+  const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi])
 
   useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on("select", () =>
-      setSelected(emblaApi.selectedScrollSnap())
-    );
-  }, [emblaApi]);
+    if (!emblaApi) return
+    emblaApi.on('select', () => setSelected(emblaApi.selectedScrollSnap()))
+  }, [emblaApi])
 
   // Reset to first slide if slides change (admin added/removed)
   useEffect(() => {
-    setSelected(0);
-    emblaApi?.scrollTo(0);
-  }, [slides.length]);
+    setSelected(0)
+    emblaApi?.scrollTo(0)
+  }, [emblaApi])
 
   if (isLoading) {
-    return <Skeleton className="mx-4 mt-4 h-64 rounded-2xl" />;
+    return <Skeleton className="mx-4 mt-4 h-64 rounded-2xl" />
   }
 
-  if (slides.length === 0) return null;
+  if (slides.length === 0) return null
 
   return (
     <div className="relative mx-4 mt-4 overflow-hidden rounded-2xl">
@@ -62,7 +54,7 @@ export function HeroCarousel() {
             >
               {/* Background */}
               <div className="absolute inset-0 bg-gradient-to-r from-[#1a0500] via-[#3d0d00] to-[#1a0500]">
-                {slide.image && slide.image.includes("utfs.io") && (
+                {slide.image && slide.image.includes('utfs.io') && (
                   <Image
                     src={slide.image}
                     alt={slide.title}
@@ -76,11 +68,11 @@ export function HeroCarousel() {
                   <div className="animate-pulse absolute right-[38%] top-[15%] h-20 w-20 rounded-full bg-orange-500/20" />
                   <div
                     className="animate-pulse absolute right-[30%] top-[55%] h-12 w-12 rounded-full bg-yellow-400/20"
-                    style={{ animationDelay: "0.7s" }}
+                    style={{ animationDelay: '0.7s' }}
                   />
                   <div
                     className="animate-pulse absolute bottom-[-10px] left-[40%] h-28 w-28 rounded-full bg-red-500/15"
-                    style={{ animationDelay: "1.2s" }}
+                    style={{ animationDelay: '1.2s' }}
                   />
                 </div>
               </div>
@@ -125,26 +117,27 @@ export function HeroCarousel() {
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-orange-900/60 to-red-950/80">
                     <svg viewBox="0 0 120 120" className="h-28 w-28">
                       <g opacity="0.9">
-                        {[0,45,90,135,180,225,270,315,22,67,112,157].map(
-                          (deg, i) => (
-                            <line
-                              key={i}
-                              x1="60" y1="60"
-                              x2={60 + 40 * Math.cos((deg * Math.PI) / 180)}
-                              y2={60 + 40 * Math.sin((deg * Math.PI) / 180)}
-                              stroke={
-                                i % 3 === 0
-                                  ? "#FFD700"
-                                  : i % 3 === 1
-                                  ? "#FF6600"
-                                  : "#fff"
-                              }
-                              strokeWidth={i < 8 ? 2.5 : 1.5}
-                              strokeLinecap="round"
-                              opacity={i < 8 ? 1 : 0.6}
-                            />
-                          )
-                        )}
+                        {[
+                          0, 45, 90, 135, 180, 225, 270, 315, 22, 67, 112, 157,
+                        ].map((deg, i) => (
+                          <line
+                            key={i}
+                            x1="60"
+                            y1="60"
+                            x2={60 + 40 * Math.cos((deg * Math.PI) / 180)}
+                            y2={60 + 40 * Math.sin((deg * Math.PI) / 180)}
+                            stroke={
+                              i % 3 === 0
+                                ? '#FFD700'
+                                : i % 3 === 1
+                                  ? '#FF6600'
+                                  : '#fff'
+                            }
+                            strokeWidth={i < 8 ? 2.5 : 1.5}
+                            strokeLinecap="round"
+                            opacity={i < 8 ? 1 : 0.6}
+                          />
+                        ))}
                         <circle cx="60" cy="60" r="6" fill="#FFD700" />
                         <circle cx="60" cy="60" r="3" fill="#fff" />
                       </g>
@@ -182,10 +175,8 @@ export function HeroCarousel() {
                 key={i}
                 onClick={() => scrollTo(i)}
                 className={cn(
-                  "h-1.5 rounded-full transition-all",
-                  i === selected
-                    ? "w-5 bg-yellow-400"
-                    : "w-1.5 bg-white/40"
+                  'h-1.5 rounded-full transition-all',
+                  i === selected ? 'w-5 bg-yellow-400' : 'w-1.5 bg-white/40',
                 )}
                 aria-label={`Go to slide ${i + 1}`}
               />
@@ -194,5 +185,5 @@ export function HeroCarousel() {
         </>
       )}
     </div>
-  );
+  )
 }

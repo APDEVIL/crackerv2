@@ -1,63 +1,70 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 import {
-  LayoutDashboard, Package, Users, ShoppingBag,
-  ChevronLeft, Menu, LogOut, Image as ImageIcon, Bell,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Toaster } from "sonner";
-import { authClient } from "@/server/better-auth/client";
-import { api } from "@/trpc/react";
-import { Loader2 } from "lucide-react";
+  Bell,
+  ChevronLeft,
+  Image as ImageIcon,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Menu,
+  Package,
+  ShoppingBag,
+  Users,
+} from 'lucide-react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Toaster } from 'sonner'
+import { cn } from '@/lib/utils'
+import { authClient } from '@/server/better-auth/client'
+import { api } from '@/trpc/react'
 
 const NAV = [
   {
-    label: "Overview",
+    label: 'Overview',
     items: [
-      { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+      { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     ],
   },
   {
-    label: "Catalogue",
+    label: 'Catalogue',
     items: [
-      { href: "/admin/products", icon: Package,   label: "Products"    },
-      { href: "/admin/slides",   icon: ImageIcon, label: "Hero Slides" },
+      { href: '/admin/products', icon: Package, label: 'Products' },
+      { href: '/admin/slides', icon: ImageIcon, label: 'Hero Slides' },
     ],
   },
   {
-    label: "Commerce",
+    label: 'Commerce',
     items: [
-      { href: "/admin/orders",    icon: ShoppingBag, label: "Orders"    },
-      { href: "/admin/customers", icon: Users,       label: "Customers" },
+      { href: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+      { href: '/admin/customers', icon: Users, label: 'Customers' },
     ],
   },
-];
+]
 
 function Sidebar({
   collapsed,
   onToggle,
   userName,
 }: {
-  collapsed: boolean;
-  onToggle: () => void;
-  userName: string;
+  collapsed: boolean
+  onToggle: () => void
+  userName: string
 }) {
-  const pathname = usePathname();
-  const router   = useRouter();
+  const pathname = usePathname()
+  const router = useRouter()
 
   async function handleSignOut() {
-    await authClient.signOut();
-    router.push("/login");
+    await authClient.signOut()
+    router.push('/login')
   }
 
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-orange-100 bg-white transition-all duration-300",
-        collapsed ? "w-16" : "w-56"
+        'flex h-screen flex-col border-r border-orange-100 bg-white transition-all duration-300',
+        collapsed ? 'w-16' : 'w-56',
       )}
     >
       {/* Logo */}
@@ -76,9 +83,11 @@ function Sidebar({
           onClick={onToggle}
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
         >
-          {collapsed
-            ? <Menu className="h-4 w-4" />
-            : <ChevronLeft className="h-4 w-4" />}
+          {collapsed ? (
+            <Menu className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
         </button>
       </div>
 
@@ -94,26 +103,26 @@ function Sidebar({
             <div className="flex flex-col gap-0.5">
               {group.items.map((item) => {
                 const active =
-                  item.href === "/admin/dashboard"
+                  item.href === '/admin/dashboard'
                     ? pathname === item.href
-                    : pathname.startsWith(item.href);
+                    : pathname.startsWith(item.href)
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition",
+                      'flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition',
                       active
-                        ? "bg-[#D4380D]/10 text-[#D4380D]"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-800",
-                      collapsed && "justify-center"
+                        ? 'bg-[#D4380D]/10 text-[#D4380D]'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
+                      collapsed && 'justify-center',
                     )}
                     title={collapsed ? item.label : undefined}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     {!collapsed && <span>{item.label}</span>}
                   </Link>
-                );
+                )
               })}
             </div>
           </div>
@@ -125,10 +134,10 @@ function Sidebar({
         <Link
           href="/"
           className={cn(
-            "flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition",
-            collapsed && "justify-center"
+            'flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition',
+            collapsed && 'justify-center',
           )}
-          title={collapsed ? "Back to store" : undefined}
+          title={collapsed ? 'Back to store' : undefined}
         >
           {!collapsed && <span>← View Store</span>}
           {collapsed && <span className="text-xs">←</span>}
@@ -136,57 +145,57 @@ function Sidebar({
         <button
           onClick={handleSignOut}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 transition",
-            collapsed && "justify-center"
+            'flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 transition',
+            collapsed && 'justify-center',
           )}
-          title={collapsed ? "Sign out" : undefined}
+          title={collapsed ? 'Sign out' : undefined}
         >
           <LogOut className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Sign Out</span>}
         </button>
       </div>
     </aside>
-  );
+  )
 }
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const pathname = usePathname();
-  const router   = useRouter();
+  const [collapsed, setCollapsed] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
 
   // ✅ Session guard
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession()
 
   useEffect(() => {
-    if (isPending) return;
-    if (!session || session.user?.role !== "admin") {
-      router.replace("/");
+    if (isPending) return
+    if (!session || session.user?.role !== 'admin') {
+      router.replace('/')
     }
-  }, [session, isPending, router]);
+  }, [session, isPending, router])
 
-  const { data: profile } = api.profile.get.useQuery();
-  const userName = profile?.name ?? "Admin";
-  const initial  = userName.charAt(0).toUpperCase();
+  const { data: profile } = api.profile.get.useQuery()
+  const userName = profile?.name ?? 'Admin'
+  const initial = userName.charAt(0).toUpperCase()
 
   const pageTitle = (() => {
-    if (pathname === "/admin/dashboard")            return "Dashboard";
-    if (pathname.startsWith("/admin/products/new")) return "New Product";
-    if (pathname.match(/\/admin\/products\/.+/))    return "Edit Product";
-    if (pathname === "/admin/products")             return "Products";
-    if (pathname === "/admin/customers")            return "Customers";
-    if (pathname.match(/\/admin\/customers\/.+/))   return "Customer Details";
-    if (pathname === "/admin/orders")               return "Orders";
-    if (pathname.match(/\/admin\/orders\/.+/))      return "Order Details";
-    if (pathname === "/admin/slides")               return "Hero Slides";
-    return "Admin";
-  })();
+    if (pathname === '/admin/dashboard') return 'Dashboard'
+    if (pathname.startsWith('/admin/products/new')) return 'New Product'
+    if (pathname.match(/\/admin\/products\/.+/)) return 'Edit Product'
+    if (pathname === '/admin/products') return 'Products'
+    if (pathname === '/admin/customers') return 'Customers'
+    if (pathname.match(/\/admin\/customers\/.+/)) return 'Customer Details'
+    if (pathname === '/admin/orders') return 'Orders'
+    if (pathname.match(/\/admin\/orders\/.+/)) return 'Order Details'
+    if (pathname === '/admin/slides') return 'Hero Slides'
+    return 'Admin'
+  })()
 
   // ✅ Show spinner while checking session
-  if (isPending || !session || session.user?.role !== "admin") {
+  if (isPending || !session || session.user?.role !== 'admin') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#faf7f4]">
         <div className="flex flex-col items-center gap-3">
@@ -194,7 +203,7 @@ export default function AdminLayout({
           <p className="text-sm text-gray-500">Checking access...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -230,5 +239,5 @@ export default function AdminLayout({
 
       <Toaster position="top-right" />
     </div>
-  );
+  )
 }

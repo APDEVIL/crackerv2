@@ -1,44 +1,87 @@
-"use client";
+'use client'
 
-import { useState, useMemo } from "react";
 import {
-  Package, ChevronRight, Clock, CheckCircle2,
-  Truck, XCircle, Search,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Package,
+  Search,
+  Truck,
+  XCircle,
+} from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { formatPrice, formatDate, cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn, formatDate, formatPrice } from '@/lib/utils'
+import type { RouterOutputs } from '@/trpc/react'
+import { api } from '@/trpc/react'
 
 // ── Derive order type from tRPC output ─────────────────────
-type Order = RouterOutputs["orders"]["myOrders"][number];
+type Order = RouterOutputs['orders']['myOrders'][number]
 
 const STATUS_CONFIG = {
-  pending:   { label: "Pending",   icon: Clock,         color: "bg-amber-100 text-amber-800"  },
-  confirmed: { label: "Confirmed", icon: CheckCircle2,  color: "bg-blue-100 text-blue-800"    },
-  shipped:   { label: "Shipped",   icon: Truck,         color: "bg-purple-100 text-purple-800" },
-  delivered: { label: "Delivered", icon: CheckCircle2,  color: "bg-green-100 text-green-800"  },
-  cancelled: { label: "Cancelled", icon: XCircle,       color: "bg-red-100 text-red-800"      },
-};
+  pending: {
+    label: 'Pending',
+    icon: Clock,
+    color: 'bg-amber-100 text-amber-800',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    icon: CheckCircle2,
+    color: 'bg-blue-100 text-blue-800',
+  },
+  shipped: {
+    label: 'Shipped',
+    icon: Truck,
+    color: 'bg-purple-100 text-purple-800',
+  },
+  delivered: {
+    label: 'Delivered',
+    icon: CheckCircle2,
+    color: 'bg-green-100 text-green-800',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    icon: XCircle,
+    color: 'bg-red-100 text-red-800',
+  },
+}
 
 const MONTHS = [
-  "All", "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+  'All',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 
 // ── Order Card ─────────────────────────────────────────────
 function OrderCard({ order, onView }: { order: Order; onView: () => void }) {
-  const status = STATUS_CONFIG[order.status];
-  const Icon = status.icon;
+  const status = STATUS_CONFIG[order.status]
+  const Icon = status.icon
 
   return (
     <div
@@ -49,13 +92,13 @@ function OrderCard({ order, onView }: { order: Order; onView: () => void }) {
         <div>
           <p className="font-mono text-xs text-gray-400">{order.orderNumber}</p>
           <p className="text-sm font-semibold text-gray-900">
-            {order.items.length} {order.items.length === 1 ? "item" : "items"}
+            {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
           </p>
         </div>
         <span
           className={cn(
-            "flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold",
-            status.color
+            'flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold',
+            status.color,
           )}
         >
           <Icon className="h-3 w-3" />
@@ -89,7 +132,7 @@ function OrderCard({ order, onView }: { order: Order; onView: () => void }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // ── Order Detail Modal ─────────────────────────────────────
@@ -98,13 +141,13 @@ function OrderDetailModal({
   open,
   onClose,
 }: {
-  order: Order | null;
-  open: boolean;
-  onClose: () => void;
+  order: Order | null
+  open: boolean
+  onClose: () => void
 }) {
-  if (!order) return null;
-  const status = STATUS_CONFIG[order.status];
-  const Icon = status.icon;
+  if (!order) return null
+  const status = STATUS_CONFIG[order.status]
+  const Icon = status.icon
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -120,8 +163,8 @@ function OrderDetailModal({
           <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
             <span
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold",
-                status.color
+                'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold',
+                status.color,
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -190,7 +233,7 @@ function OrderDetailModal({
             </p>
             <p className="text-sm text-gray-500">
               {order.addrLine1}
-              {order.addrLine2 ? `, ${order.addrLine2}` : ""}
+              {order.addrLine2 ? `, ${order.addrLine2}` : ''}
             </p>
             <p className="text-sm text-gray-500">
               {order.addrCity}, {order.addrState} – {order.addrPincode}
@@ -201,7 +244,7 @@ function OrderDetailModal({
           <div className="rounded-xl bg-orange-50 px-4 py-3 text-sm">
             <p className="font-semibold text-orange-800">Cash on Delivery</p>
             <p className="text-xs text-orange-600 mt-0.5">
-              Payment status:{" "}
+              Payment status:{' '}
               <span className="font-semibold capitalize">
                 {order.paymentStatus}
               </span>
@@ -218,41 +261,39 @@ function OrderDetailModal({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // ── Page ───────────────────────────────────────────────────
 export default function OrdersPage() {
-  const [search, setSearch] = useState("");
-  const [month, setMonth] = useState("All");
-  const [selected, setSelected] = useState<Order | null>(null);
+  const [search, setSearch] = useState('')
+  const [month, setMonth] = useState('All')
+  const [selected, setSelected] = useState<Order | null>(null)
 
-  const { data: orders = [], isLoading } = api.orders.myOrders.useQuery({});
+  const { data: orders = [], isLoading } = api.orders.myOrders.useQuery({})
 
   const filtered = useMemo(() => {
-    let list = [...orders];
+    let list = [...orders]
 
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.toLowerCase()
       list = list.filter(
         (o) =>
           o.orderNumber.toLowerCase().includes(q) ||
-          o.items.some((i) => i.product.name.toLowerCase().includes(q))
-      );
+          o.items.some((i) => i.product.name.toLowerCase().includes(q)),
+      )
     }
 
-    if (month !== "All") {
-      const mIdx = MONTHS.indexOf(month) - 1;
-      list = list.filter(
-        (o) => new Date(o.createdAt).getMonth() === mIdx
-      );
+    if (month !== 'All') {
+      const mIdx = MONTHS.indexOf(month) - 1
+      list = list.filter((o) => new Date(o.createdAt).getMonth() === mIdx)
     }
 
     return list.sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }, [orders, search, month]);
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+  }, [orders, search, month])
 
   if (isLoading) {
     return (
@@ -264,7 +305,7 @@ export default function OrdersPage() {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -292,7 +333,9 @@ export default function OrdersPage() {
           </SelectTrigger>
           <SelectContent>
             {MONTHS.map((m) => (
-              <SelectItem key={m} value={m}>{m}</SelectItem>
+              <SelectItem key={m} value={m}>
+                {m}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -321,5 +364,5 @@ export default function OrdersPage() {
         onClose={() => setSelected(null)}
       />
     </div>
-  );
+  )
 }

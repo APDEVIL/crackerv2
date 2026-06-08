@@ -1,49 +1,48 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, Heart, Search, Menu, User, LogOut } from "lucide-react";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { useStore } from "@/lib/store";
-import { authClient } from "@/server/better-auth/client";
-import { api } from "@/trpc/react";
-import { cn } from "@/lib/utils";
+import { Heart, LogOut, Menu, Search, ShoppingCart, User } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useStore } from '@/lib/store'
+import { cn } from '@/lib/utils'
+import { authClient } from '@/server/better-auth/client'
+import { api } from '@/trpc/react'
 
 export function Navbar() {
-  const { cartCount, wishlist } = useStore();
-  const pathname  = usePathname();
-  const router    = useRouter();
-  const [searchOpen, setSearchOpen] = useState(false);
+  const { cartCount, wishlist } = useStore()
+  const pathname = usePathname()
+  const router = useRouter()
+  const [searchOpen, setSearchOpen] = useState(false)
 
   // Session — to show login vs profile
-  const { data: session } = authClient.useSession();
-  const isLoggedIn = !!session?.user;
+  const { data: session } = authClient.useSession()
+  const isLoggedIn = !!session?.user
 
   // Profile for avatar initial
   const { data: profile } = api.profile.get.useQuery(undefined, {
     enabled: isLoggedIn,
-  });
-  const initial = profile?.name?.charAt(0)?.toUpperCase() ?? "U";
+  })
+  const initial = profile?.name?.charAt(0)?.toUpperCase() ?? 'U'
 
   async function handleSignOut() {
-    await authClient.signOut();
-    router.push("/login");
-    router.refresh();
+    await authClient.signOut()
+    router.push('/login')
+    router.refresh()
   }
 
   const navLinks = [
-    { href: "/",         label: "Home"       },
-    { href: "/products", label: "Explore"    },
-    { href: "/sparks",   label: "Spark Zone" },
-  ];
+    { href: '/', label: 'Home' },
+    { href: '/products', label: 'Explore' },
+    { href: '/sparks', label: 'Spark Zone' },
+  ]
 
   return (
     <header className="sticky top-0 z-50 border-b border-orange-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2.5">
-
         {/* Logo */}
         <Link href="/" className="shrink-0">
           <div className="leading-tight">
@@ -63,8 +62,8 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-[#D4380D]",
-                pathname === link.href ? "text-[#D4380D]" : "text-gray-500"
+                'text-sm font-medium transition-colors hover:text-[#D4380D]',
+                pathname === link.href ? 'text-[#D4380D]' : 'text-gray-500',
               )}
             >
               {link.label}
@@ -97,7 +96,6 @@ export function Navbar() {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1.5">
-
           {/* Wishlist */}
           <Link href="/wishlist">
             <button className="relative flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-red-200 hover:text-red-500 transition">
@@ -128,7 +126,7 @@ export function Navbar() {
             <Link href="/profile">
               <button
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-[#D4380D]/10 text-xs font-bold text-[#D4380D] border border-[#D4380D]/20 hover:bg-[#D4380D]/20 transition"
-                title={profile?.name ?? "Profile"}
+                title={profile?.name ?? 'Profile'}
               >
                 {initial}
               </button>
@@ -202,5 +200,5 @@ export function Navbar() {
         </div>
       </div>
     </header>
-  );
+  )
 }

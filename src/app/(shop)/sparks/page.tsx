@@ -1,19 +1,19 @@
-"use client";
+'use client'
 
-import { Sparkles } from "lucide-react";
-import { api } from "@/trpc/react";
-import { ProductGrid, ProductGridSkeleton } from "@/components/shop/ProductGrid";
-import { toProducts } from "@/lib/types";
+import { Sparkles } from 'lucide-react'
+import { ProductGrid, ProductGridSkeleton } from '@/components/shop/ProductGrid'
+import { toProducts } from '@/lib/types'
+import { api } from '@/trpc/react'
 
 export default function SparkZonePage() {
   const { data: rawProducts = [], isLoading: productsLoading } =
-    api.products.list.useQuery({});
+    api.products.list.useQuery({})
 
   const { data: categories = [], isLoading: categoriesLoading } =
-    api.categories.list.useQuery();
+    api.categories.list.useQuery()
 
-  const products = toProducts(rawProducts);
-  const isLoading = productsLoading || categoriesLoading;
+  const products = toProducts(rawProducts)
+  const isLoading = productsLoading || categoriesLoading
 
   return (
     <div className="min-h-screen px-4 py-6 pb-16 max-w-6xl mx-auto">
@@ -25,7 +25,7 @@ export default function SparkZonePage() {
           </h1>
           <p className="text-xs text-gray-400 mt-0.5">
             {isLoading
-              ? "Loading..."
+              ? 'Loading...'
               : `${products.length} crackers — same great picks, your personal space`}
           </p>
         </div>
@@ -41,5 +41,5 @@ export default function SparkZonePage() {
         />
       )}
     </div>
-  );
+  )
 }

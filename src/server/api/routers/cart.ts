@@ -1,14 +1,10 @@
-import { z } from "zod";
-import { eq, and } from "drizzle-orm";
-import { TRPCError } from "@trpc/server";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-} from "@/server/api/trpc";
-import { cartItems, products } from "@/server/db/schema";
+import { TRPCError } from '@trpc/server'
+import { and, eq } from 'drizzle-orm'
+import { z } from 'zod'
+import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
+import { cartItems } from '@/server/db/schema'
 
 export const cartRouter = createTRPCRouter({
-
   // api.cart.list.useQuery()
   // Returns cart items with full product details joined
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -16,7 +12,7 @@ export const cartRouter = createTRPCRouter({
       where: (c, { eq }) => eq(c.userId, ctx.session.user.id),
       with: { product: { with: { category: true } } },
       orderBy: (c, { asc }) => asc(c.createdAt),
-    });
+    })
   }),
 
   // api.cart.add.useMutation()
@@ -26,25 +22,25 @@ export const cartRouter = createTRPCRouter({
       z.object({
         productId: z.string(),
         quantity: z.number().int().min(1).default(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Verify product exists and is active
       const product = await ctx.db.query.products.findFirst({
         where: (p, { eq, and }) =>
           and(eq(p.id, input.productId), eq(p.isActive, true)),
-      });
+      })
 
       if (!product) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' })
       }
 
       // Check stock
       if (product.stock < input.quantity) {
         throw new TRPCError({
-          code: "PRECONDITION_FAILED",
+          code: 'PRECONDITION_FAILED',
           message: `Only ${product.stock} in stock`,
-        });
+        })
       }
 
       // Check if already in cart
@@ -52,28 +48,28 @@ export const cartRouter = createTRPCRouter({
         where: (c, { eq, and }) =>
           and(
             eq(c.userId, ctx.session.user.id),
-            eq(c.productId, input.productId)
+            eq(c.productId, input.productId),
           ),
-      });
+      })
 
       if (existing) {
         // Increment quantity
-        const newQty = existing.quantity + input.quantity;
+        const newQty = existing.quantity + input.quantity
 
         if (newQty > product.stock) {
           throw new TRPCError({
-            code: "PRECONDITION_FAILED",
+            code: 'PRECONDITION_FAILED',
             message: `Only ${product.stock} in stock`,
-          });
+          })
         }
 
         const [updated] = await ctx.db
           .update(cartItems)
           .set({ quantity: newQty, updatedAt: new Date() })
           .where(eq(cartItems.id, existing.id))
-          .returning();
+          .returning()
 
-        return updated;
+        return updated
       }
 
       // Insert new cart item
@@ -84,9 +80,9 @@ export const cartRouter = createTRPCRouter({
           productId: input.productId,
           quantity: input.quantity,
         })
-        .returning();
+        .returning()
 
-      return inserted;
+      return inserted
     }),
 
   // api.cart.updateQty.useMutation()
@@ -95,22 +91,22 @@ export const cartRouter = createTRPCRouter({
       z.object({
         productId: z.string(),
         quantity: z.number().int().min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const product = await ctx.db.query.products.findFirst({
         where: (p, { eq }) => eq(p.id, input.productId),
-      });
+      })
 
       if (!product) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' })
       }
 
       if (input.quantity > product.stock) {
         throw new TRPCError({
-          code: "PRECONDITION_FAILED",
+          code: 'PRECONDITION_FAILED',
           message: `Only ${product.stock} in stock`,
-        });
+        })
       }
 
       const [updated] = await ctx.db
@@ -119,16 +115,19 @@ export const cartRouter = createTRPCRouter({
         .where(
           and(
             eq(cartItems.userId, ctx.session.user.id),
-            eq(cartItems.productId, input.productId)
-          )
+            eq(cartItems.productId, input.productId),
+          ),
         )
-        .returning();
+        .returning()
 
       if (!updated) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Cart item not found" });
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Cart item not found',
+        })
       }
 
-      return updated;
+      return updated
     }),
 
   // api.cart.remove.useMutation()
@@ -140,20 +139,20 @@ export const cartRouter = createTRPCRouter({
         .where(
           and(
             eq(cartItems.userId, ctx.session.user.id),
-            eq(cartItems.productId, input.productId)
-          )
-        );
+            eq(cartItems.productId, input.productId),
+          ),
+        )
 
-      return { success: true };
+      return { success: true }
     }),
 
   // api.cart.clear.useMutation()
   clear: protectedProcedure.mutation(async ({ ctx }) => {
     await ctx.db
       .delete(cartItems)
-      .where(eq(cartItems.userId, ctx.session.user.id));
+      .where(eq(cartItems.userId, ctx.session.user.id))
 
-    return { success: true };
+    return { success: true }
   }),
 
   // api.cart.count.useQuery()
@@ -162,8 +161,8 @@ export const cartRouter = createTRPCRouter({
     const items = await ctx.db.query.cartItems.findMany({
       where: (c, { eq }) => eq(c.userId, ctx.session.user.id),
       columns: { quantity: true },
-    });
+    })
 
-    return items.reduce((sum, i) => sum + i.quantity, 0);
+    return items.reduce((sum, i) => sum + i.quantity, 0)
   }),
-});
+})

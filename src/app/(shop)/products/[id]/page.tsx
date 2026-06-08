@@ -1,60 +1,69 @@
-"use client";
+'use client'
 
-import { useState, use } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { notFound } from "next/navigation";
 import {
-  Star, Heart, ShoppingCart,
-  Play, Package, Shield, Truck,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { ProductCard } from "@/components/shop/ProductCard";
-import { useStore } from "@/lib/store";
-import { api } from "@/trpc/react";
-import { toProduct, toProducts } from "@/lib/types";
-import { formatPrice, getDiscount, cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+  Heart,
+  Package,
+  Play,
+  Shield,
+  ShoppingCart,
+  Star,
+  Truck,
+} from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { use, useState } from 'react'
+import { ProductCard } from '@/components/shop/ProductCard'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useStore } from '@/lib/store'
+import { toProduct, toProducts } from '@/lib/types'
+import { cn, formatPrice, getDiscount } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 const fallbackGradients: Record<string, string> = {
-  rocket: "from-slate-900 to-blue-950",
-  bijli: "from-violet-950 to-purple-950",
-  atom: "from-emerald-950 to-green-950",
-  "flower-pot": "from-amber-950 to-yellow-950",
-  sparklers: "from-orange-950 to-red-950",
-  chakkar: "from-neutral-900 to-stone-950",
-};
+  rocket: 'from-slate-900 to-blue-950',
+  bijli: 'from-violet-950 to-purple-950',
+  atom: 'from-emerald-950 to-green-950',
+  'flower-pot': 'from-amber-950 to-yellow-950',
+  sparklers: 'from-orange-950 to-red-950',
+  chakkar: 'from-neutral-900 to-stone-950',
+}
 
 const fallbackEmoji: Record<string, string> = {
-  rocket: "🚀", bijli: "⚡", atom: "💥",
-  "flower-pot": "🌸", sparklers: "✨", chakkar: "🌀",
-};
+  rocket: '🚀',
+  bijli: '⚡',
+  atom: '💥',
+  'flower-pot': '🌸',
+  sparklers: '✨',
+  chakkar: '🌀',
+}
 
 export default function ProductDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = use(params);
+  const { id } = use(params)
 
-  const { data: raw, isLoading, error } = api.products.getById.useQuery({ id });
-  const cracker = raw ? toProduct(raw) : null;
+  const { data: raw, isLoading, error } = api.products.getById.useQuery({ id })
+  const cracker = raw ? toProduct(raw) : null
 
   const { data: rawRelated = [] } = api.products.getByCategory.useQuery(
-    { slug: cracker?.categorySlug ?? "" },
-    { enabled: !!cracker }
-  );
+    { slug: cracker?.categorySlug ?? '' },
+    { enabled: !!cracker },
+  )
 
   const related = toProducts(rawRelated)
     .filter((c) => c.id !== id)
-    .slice(0, 4);
+    .slice(0, 4)
 
-  const { addToCart, toggleWishlist, isWishlisted } = useStore();
-  const [qty, setQty] = useState(1);
-  const [activeImg, setActiveImg] = useState(0);
-  const [showVideo, setShowVideo] = useState(false);
-  const [added, setAdded] = useState(false);
+  const { addToCart, toggleWishlist, isWishlisted } = useStore()
+  const [qty, setQty] = useState(1)
+  const [activeImg, setActiveImg] = useState(0)
+  const [showVideo, setShowVideo] = useState(false)
+  const [added, setAdded] = useState(false)
 
   // ── Loading state ──────────────────────────────────────────
   if (isLoading) {
@@ -72,32 +81,36 @@ export default function ProductDetailPage({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  if (error || !cracker) return notFound();
+  if (error || !cracker) return notFound()
 
-  const wishlisted = isWishlisted(cracker.id);
+  const wishlisted = isWishlisted(cracker.id)
   const discount = cracker.originalPrice
     ? getDiscount(cracker.price, cracker.originalPrice)
-    : null;
+    : null
   const gradient =
-    fallbackGradients[cracker.categorySlug] ?? "from-neutral-900 to-stone-950";
-  const emoji = fallbackEmoji[cracker.categorySlug] ?? "🎆";
+    fallbackGradients[cracker.categorySlug] ?? 'from-neutral-900 to-stone-950'
+  const emoji = fallbackEmoji[cracker.categorySlug] ?? '🎆'
 
   function handleAdd() {
-    addToCart(cracker!, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    addToCart(cracker!, qty)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1500)
   }
 
   return (
     <div className="min-h-screen pb-16">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 px-4 py-4 text-xs text-gray-400">
-        <Link href="/" className="hover:text-gray-600">Home</Link>
+        <Link href="/" className="hover:text-gray-600">
+          Home
+        </Link>
         <span>/</span>
-        <Link href="/products" className="hover:text-gray-600">Products</Link>
+        <Link href="/products" className="hover:text-gray-600">
+          Products
+        </Link>
         <span>/</span>
         <Link
           href={`/products?category=${cracker.categorySlug}`}
@@ -110,7 +123,6 @@ export default function ProductDetailPage({
       </div>
 
       <div className="grid grid-cols-1 gap-8 px-4 lg:grid-cols-2">
-
         {/* ── Left: Image + Video Gallery ───────────────────── */}
         <div>
           <div className="relative mb-3 overflow-hidden rounded-2xl">
@@ -125,13 +137,13 @@ export default function ProductDetailPage({
               <div className="relative aspect-square w-full overflow-hidden rounded-2xl">
                 <div
                   className={cn(
-                    "flex h-full w-full items-center justify-center bg-gradient-to-br",
-                    gradient
+                    'flex h-full w-full items-center justify-center bg-gradient-to-br',
+                    gradient,
                   )}
                 >
                   <span className="text-8xl">{emoji}</span>
                 </div>
-                {cracker.images[activeImg]?.includes("utfs.io") && (
+                {cracker.images[activeImg]?.includes('utfs.io') && (
                   <Image
                     src={cracker.images[activeImg]!}
                     alt={cracker.name}
@@ -168,18 +180,21 @@ export default function ProductDetailPage({
               {cracker.images.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => { setShowVideo(false); setActiveImg(i); }}
+                  onClick={() => {
+                    setShowVideo(false)
+                    setActiveImg(i)
+                  }}
                   className={cn(
-                    "relative h-16 w-16 overflow-hidden rounded-xl border-2 transition",
+                    'relative h-16 w-16 overflow-hidden rounded-xl border-2 transition',
                     activeImg === i && !showVideo
-                      ? "border-[#D4380D]"
-                      : "border-transparent hover:border-orange-200"
+                      ? 'border-[#D4380D]'
+                      : 'border-transparent hover:border-orange-200',
                   )}
                 >
                   <div
                     className={cn(
-                      "flex h-full w-full items-center justify-center bg-gradient-to-br text-2xl",
-                      gradient
+                      'flex h-full w-full items-center justify-center bg-gradient-to-br text-2xl',
+                      gradient,
                     )}
                   >
                     {emoji}
@@ -190,10 +205,10 @@ export default function ProductDetailPage({
                 <button
                   onClick={() => setShowVideo(true)}
                   className={cn(
-                    "flex h-16 w-16 items-center justify-center rounded-xl border-2 bg-black/80 transition",
+                    'flex h-16 w-16 items-center justify-center rounded-xl border-2 bg-black/80 transition',
                     showVideo
-                      ? "border-[#D4380D]"
-                      : "border-transparent hover:border-orange-200"
+                      ? 'border-[#D4380D]'
+                      : 'border-transparent hover:border-orange-200',
                   )}
                 >
                   <Play className="h-6 w-6 fill-white text-white" />
@@ -216,11 +231,12 @@ export default function ProductDetailPage({
             {cracker.tag && (
               <span
                 className={cn(
-                  "rounded-md px-2 py-0.5 text-[10px] font-bold",
-                  cracker.tag === "Best Seller" && "bg-yellow-200 text-yellow-900",
-                  cracker.tag === "New" && "bg-sky-200 text-sky-900",
-                  cracker.tag === "Sale" && "bg-red-500 text-white",
-                  cracker.tag === "Popular" && "bg-orange-200 text-orange-900"
+                  'rounded-md px-2 py-0.5 text-[10px] font-bold',
+                  cracker.tag === 'Best Seller' &&
+                    'bg-yellow-200 text-yellow-900',
+                  cracker.tag === 'New' && 'bg-sky-200 text-sky-900',
+                  cracker.tag === 'Sale' && 'bg-red-500 text-white',
+                  cracker.tag === 'Popular' && 'bg-orange-200 text-orange-900',
                 )}
               >
                 {cracker.tag}
@@ -240,10 +256,10 @@ export default function ProductDetailPage({
                 <Star
                   key={s}
                   className={cn(
-                    "h-4 w-4",
+                    'h-4 w-4',
                     s <= Math.round(cracker.rating)
-                      ? "fill-amber-400 text-amber-400"
-                      : "fill-gray-200 text-gray-200"
+                      ? 'fill-amber-400 text-amber-400'
+                      : 'fill-gray-200 text-gray-200',
                   )}
                 />
               ))}
@@ -282,7 +298,7 @@ export default function ProductDetailPage({
               {cracker.packSize}
             </span>
             <span className="ml-auto text-xs text-orange-600">
-              {cracker.stock > 0 ? `${cracker.stock} in stock` : "Out of stock"}
+              {cracker.stock > 0 ? `${cracker.stock} in stock` : 'Out of stock'}
             </span>
           </div>
 
@@ -297,7 +313,9 @@ export default function ProductDetailPage({
               >
                 −
               </button>
-              <span className="w-10 text-center text-sm font-semibold">{qty}</span>
+              <span className="w-10 text-center text-sm font-semibold">
+                {qty}
+              </span>
               <button
                 onClick={() => setQty((q) => q + 1)}
                 className="flex h-10 w-10 items-center justify-center text-gray-600 hover:bg-gray-50 rounded-r-xl"
@@ -310,39 +328,39 @@ export default function ProductDetailPage({
               onClick={handleAdd}
               disabled={cracker.stock === 0}
               className={cn(
-                "flex-1 gap-2 rounded-xl transition-all",
+                'flex-1 gap-2 rounded-xl transition-all',
                 added
-                  ? "bg-green-600 text-white"
-                  : "bg-[#D4380D] text-white hover:bg-[#b82e08]"
+                  ? 'bg-green-600 text-white'
+                  : 'bg-[#D4380D] text-white hover:bg-[#b82e08]',
               )}
             >
               <ShoppingCart className="h-4 w-4" />
               {added
-                ? "Added to Cart!"
+                ? 'Added to Cart!'
                 : cracker.stock === 0
-                ? "Out of Stock"
-                : "Add to Cart"}
+                  ? 'Out of Stock'
+                  : 'Add to Cart'}
             </Button>
 
             <button
               onClick={() => toggleWishlist(cracker.id, cracker.name)}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-xl border-2 transition",
+                'flex h-10 w-10 items-center justify-center rounded-xl border-2 transition',
                 wishlisted
-                  ? "border-red-300 bg-red-50 text-red-500"
-                  : "border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-400"
+                  ? 'border-red-300 bg-red-50 text-red-500'
+                  : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-400',
               )}
               aria-label="Add to wishlist"
             >
-              <Heart className={cn("h-5 w-5", wishlisted && "fill-red-500")} />
+              <Heart className={cn('h-5 w-5', wishlisted && 'fill-red-500')} />
             </button>
           </div>
 
           {/* Trust badges */}
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: Shield, text: "Safe & certified" },
-              { icon: Truck, text: "Fast delivery" },
+              { icon: Shield, text: 'Safe & certified' },
+              { icon: Truck, text: 'Fast delivery' },
             ].map(({ icon: Icon, text }) => (
               <div
                 key={text}
@@ -370,5 +388,5 @@ export default function ProductDetailPage({
         </section>
       )}
     </div>
-  );
+  )
 }

@@ -1,10 +1,9 @@
 // Auth — Better Auth owned tables
-export * from "./auth";
-
+export * from './auth'
+export * from './cart'
+export * from './orders'
 // Domain schemas
-export * from "./products";
-export * from "./slides";
-export * from "./cart";
-export * from "./wishlist";
-export * from "./orders";
-export * from "./profile";
+export * from './products'
+export * from './profile'
+export * from './slides'
+export * from './wishlist'

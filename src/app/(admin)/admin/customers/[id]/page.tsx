@@ -1,33 +1,36 @@
-"use client";
+'use client'
 
-import { use } from "react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import {
-  ArrowLeft, Mail, Phone, MapPin,
-  Package, ChevronRight,
-} from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { formatPrice, formatDate, cn } from "@/lib/utils";
+  ArrowLeft,
+  ChevronRight,
+  Mail,
+  MapPin,
+  Package,
+  Phone,
+} from 'lucide-react'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { use } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn, formatDate, formatPrice } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 const STATUS_COLOR: Record<string, string> = {
-  pending:   "bg-amber-100 text-amber-700",
-  confirmed: "bg-blue-100 text-blue-700",
-  shipped:   "bg-purple-100 text-purple-700",
-  delivered: "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-700",
-};
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  shipped: 'bg-purple-100 text-purple-700',
+  delivered: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
+}
 
 export default function CustomerDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = use(params);
+  const { id } = use(params)
 
-  const { data: customer, isLoading } =
-    api.customers.getById.useQuery({ id });
+  const { data: customer, isLoading } = api.customers.getById.useQuery({ id })
 
   if (isLoading) {
     return (
@@ -37,10 +40,10 @@ export default function CustomerDetailPage({
         <Skeleton className="h-32 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
-    );
+    )
   }
 
-  if (!customer) return notFound();
+  if (!customer) return notFound()
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -67,18 +70,24 @@ export default function CustomerDetailPage({
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {[
-                { label: "Total Orders", value: customer.totalOrders },
-                { label: "Total Spent",  value: formatPrice(customer.totalSpent) },
+                { label: 'Total Orders', value: customer.totalOrders },
                 {
-                  label: "Avg. Order",
+                  label: 'Total Spent',
+                  value: formatPrice(customer.totalSpent),
+                },
+                {
+                  label: 'Avg. Order',
                   value: formatPrice(
                     Math.round(
-                      customer.totalSpent / (customer.totalOrders || 1)
-                    )
+                      customer.totalSpent / (customer.totalOrders || 1),
+                    ),
                   ),
                 },
               ].map(({ label, value }) => (
-                <div key={label} className="rounded-xl bg-orange-50/60 px-3 py-2">
+                <div
+                  key={label}
+                  className="rounded-xl bg-orange-50/60 px-3 py-2"
+                >
                   <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">
                     {label}
                   </p>
@@ -112,12 +121,10 @@ export default function CustomerDetailPage({
               <div className="text-gray-700">
                 <p>
                   {customer.address.line1}
-                  {customer.address.line2
-                    ? `, ${customer.address.line2}`
-                    : ""}
+                  {customer.address.line2 ? `, ${customer.address.line2}` : ''}
                 </p>
                 <p>
-                  {customer.address.city}, {customer.address.state} –{" "}
+                  {customer.address.city}, {customer.address.state} –{' '}
                   {customer.address.pincode}
                 </p>
                 {customer.address.district && (
@@ -158,14 +165,16 @@ export default function CustomerDetailPage({
                     {order.orderNumber}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {order.items.length} items ·{" "}
+                    {order.items.length} items ·{' '}
                     {formatDate(order.createdAt.toString())}
                   </p>
                 </div>
-                <span className={cn(
-                  "rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize",
-                  STATUS_COLOR[order.status]
-                )}>
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize',
+                    STATUS_COLOR[order.status],
+                  )}
+                >
                   {order.status}
                 </span>
                 <span className="text-sm font-bold text-[#D4380D]">
@@ -178,5 +187,5 @@ export default function CustomerDetailPage({
         )}
       </div>
     </div>
-  );
+  )
 }

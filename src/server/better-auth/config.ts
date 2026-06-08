@@ -1,15 +1,15 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 
-import { env } from "@/env";
-import { db } from "@/server/db";
-import * as schema from "@/server/db/schema";
+import { env } from '@/env'
+import { db } from '@/server/db'
+import * as schema from '@/server/db/schema'
 
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
 
   database: drizzleAdapter(db, {
-    provider: "pg",
+    provider: 'pg',
     // Point Better Auth at your existing schema tables
     // so it doesn't create its own separate ones
     schema: {
@@ -37,13 +37,13 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: "string",
-        defaultValue: "user",
+        type: 'string',
+        defaultValue: 'user',
         required: false,
         input: false, // users cannot set their own role
       },
     },
   },
-});
+})
 
-export type Session = typeof auth.$Infer.Session;
+export type Session = typeof auth.$Infer.Session

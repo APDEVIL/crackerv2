@@ -1,107 +1,122 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { ShoppingBag, ArrowRight, Trash2, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { CartItem } from "@/components/shop/CartItem";
-import { useStore } from "@/lib/store";
-import { formatPrice } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { useState } from "react";
-import { z } from "zod";
+import { AlertTriangle, ArrowRight, ShoppingBag, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { z } from 'zod'
+import { CartItem } from '@/components/shop/CartItem'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useStore } from '@/lib/store'
+import { formatPrice } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 const addressSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  phone: z.string().min(10, "Valid phone required"),
-  line1: z.string().min(1, "Address line 1 is required"),
+  name: z.string().min(1, 'Name is required'),
+  phone: z.string().min(10, 'Valid phone required'),
+  line1: z.string().min(1, 'Address line 1 is required'),
   line2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  pincode: z.string().length(6, "Pincode must be 6 digits"),
-  district: z.string().min(1, "District is required"),
-});
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  pincode: z.string().length(6, 'Pincode must be 6 digits'),
+  district: z.string().min(1, 'District is required'),
+})
 
-type AddressForm = z.infer<typeof addressSchema>;
+type AddressForm = z.infer<typeof addressSchema>
 
 const emptyAddress: AddressForm = {
-  name: "", phone: "", line1: "", line2: "",
-  city: "", state: "", pincode: "", district: "",
-};
+  name: '',
+  phone: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  pincode: '',
+  district: '',
+}
 
 export default function CartPage() {
-  const { cart, cartLoading, clearCart, cartTotal, cartCount, budget, budgetExceeded } =
-    useStore();
+  const {
+    cart,
+    cartLoading,
+    clearCart,
+    cartTotal,
+    cartCount,
+    budget,
+    budgetExceeded,
+  } = useStore()
 
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [form, setForm] = useState<AddressForm>(emptyAddress);
-  const [errors, setErrors] = useState<Partial<Record<keyof AddressForm, string>>>({});
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [form, setForm] = useState<AddressForm>(emptyAddress)
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof AddressForm, string>>
+  >({})
 
-  const utils = api.useUtils();
+  const utils = api.useUtils()
 
   // Pre-fill form from saved profile address
-  const { data: profile } = api.profile.get.useQuery();
+  const { data: profile } = api.profile.get.useQuery()
 
   const placeMutation = api.orders.place.useMutation({
     onSuccess: (order) => {
-      setCheckoutOpen(false);
-      setForm(emptyAddress);
-      utils.cart.list.invalidate();
-      utils.orders.myOrders.invalidate();
+      setCheckoutOpen(false)
+      setForm(emptyAddress)
+      utils.cart.list.invalidate()
+      utils.orders.myOrders.invalidate()
       toast.success(`Order ${order.orderNumber} placed!`, {
         description: "We'll confirm your order shortly.",
-      });
+      })
     },
     onError: (err) => toast.error(err.message),
-  });
+  })
 
-  const shipping = cartTotal >= 500 ? 0 : 49;
-  const grandTotal = cartTotal + shipping;
+  const shipping = cartTotal >= 500 ? 0 : 49
+  const grandTotal = cartTotal + shipping
 
   function openCheckout() {
     // Pre-fill with profile address if available
     if (profile?.address) {
       setForm({
-        name: profile.address.name ?? "",
-        phone: profile.phone ?? "",
-        line1: profile.address.line1 ?? "",
-        line2: profile.address.line2 ?? "",
-        city: profile.address.city ?? "",
-        state: profile.address.state ?? "",
-        pincode: profile.address.pincode ?? "",
-        district: profile.address.district ?? "",
-      });
+        name: profile.address.name ?? '',
+        phone: profile.phone ?? '',
+        line1: profile.address.line1 ?? '',
+        line2: profile.address.line2 ?? '',
+        city: profile.address.city ?? '',
+        state: profile.address.state ?? '',
+        pincode: profile.address.pincode ?? '',
+        district: profile.address.district ?? '',
+      })
     }
-    setCheckoutOpen(true);
+    setCheckoutOpen(true)
   }
 
   function handleField(key: keyof AddressForm, value: string) {
-    setForm((f) => ({ ...f, [key]: value }));
-    setErrors((e) => ({ ...e, [key]: undefined }));
+    setForm((f) => ({ ...f, [key]: value }))
+    setErrors((e) => ({ ...e, [key]: undefined }))
   }
 
   function handlePlaceOrder() {
-    const result = addressSchema.safeParse(form);
+    const result = addressSchema.safeParse(form)
     if (!result.success) {
-      const flat = result.error.flatten().fieldErrors;
+      const flat = result.error.flatten().fieldErrors
       setErrors(
         Object.fromEntries(
-          Object.entries(flat).map(([k, v]) => [k, v?.[0]])
-        ) as Partial<Record<keyof AddressForm, string>>
-      );
-      return;
+          Object.entries(flat).map(([k, v]) => [k, v?.[0]]),
+        ) as Partial<Record<keyof AddressForm, string>>,
+      )
+      return
     }
-    placeMutation.mutate({ address: result.data });
+    placeMutation.mutate({ address: result.data })
   }
 
   if (cartLoading) {
@@ -114,7 +129,7 @@ export default function CartPage() {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   if (cart.length === 0) {
@@ -126,7 +141,9 @@ export default function CartPage() {
         <h2 className="font-serif text-2xl font-black text-gray-900">
           Your cart is empty
         </h2>
-        <p className="text-sm text-gray-500">Add some crackers to get started!</p>
+        <p className="text-sm text-gray-500">
+          Add some crackers to get started!
+        </p>
         <Link href="/products">
           <Button className="mt-2 gap-2 rounded-xl bg-[#D4380D] text-white hover:bg-[#b82e08]">
             <ShoppingBag className="h-4 w-4" />
@@ -134,7 +151,7 @@ export default function CartPage() {
           </Button>
         </Link>
       </div>
-    );
+    )
   }
 
   return (
@@ -143,7 +160,7 @@ export default function CartPage() {
         <h1 className="font-serif text-2xl font-black text-gray-900">
           Your Cart
           <span className="ml-2 font-sans text-base font-normal text-gray-400">
-            ({cartCount} {cartCount === 1 ? "item" : "items"})
+            ({cartCount} {cartCount === 1 ? 'item' : 'items'})
           </span>
         </h1>
         <button
@@ -248,15 +265,35 @@ export default function CartPage() {
           <div className="space-y-3">
             {(
               [
-                { key: "name", label: "Full Name", placeholder: "Ramesh Kumar" },
-                { key: "phone", label: "Phone", placeholder: "9876543210" },
-                { key: "line1", label: "Address Line 1", placeholder: "12, Rose Nagar" },
-                { key: "line2", label: "Address Line 2 (optional)", placeholder: "Near Bus Stand" },
-                { key: "city", label: "City", placeholder: "Sivakasi" },
-                { key: "district", label: "District", placeholder: "Virudhunagar" },
-                { key: "state", label: "State", placeholder: "Tamil Nadu" },
-                { key: "pincode", label: "Pincode", placeholder: "626189" },
-              ] as { key: keyof AddressForm; label: string; placeholder: string }[]
+                {
+                  key: 'name',
+                  label: 'Full Name',
+                  placeholder: 'Ramesh Kumar',
+                },
+                { key: 'phone', label: 'Phone', placeholder: '9876543210' },
+                {
+                  key: 'line1',
+                  label: 'Address Line 1',
+                  placeholder: '12, Rose Nagar',
+                },
+                {
+                  key: 'line2',
+                  label: 'Address Line 2 (optional)',
+                  placeholder: 'Near Bus Stand',
+                },
+                { key: 'city', label: 'City', placeholder: 'Sivakasi' },
+                {
+                  key: 'district',
+                  label: 'District',
+                  placeholder: 'Virudhunagar',
+                },
+                { key: 'state', label: 'State', placeholder: 'Tamil Nadu' },
+                { key: 'pincode', label: 'Pincode', placeholder: '626189' },
+              ] as {
+                key: keyof AddressForm
+                label: string
+                placeholder: string
+              }[]
             ).map(({ key, label, placeholder }) => (
               <div key={key}>
                 <Label className="text-xs font-medium text-gray-700">
@@ -266,10 +303,12 @@ export default function CartPage() {
                   value={form[key]}
                   onChange={(e) => handleField(key, e.target.value)}
                   placeholder={placeholder}
-                  className={errors[key] ? "border-red-400" : ""}
+                  className={errors[key] ? 'border-red-400' : ''}
                 />
                 {errors[key] && (
-                  <p className="mt-0.5 text-[11px] text-red-500">{errors[key]}</p>
+                  <p className="mt-0.5 text-[11px] text-red-500">
+                    {errors[key]}
+                  </p>
                 )}
               </div>
             ))}
@@ -279,7 +318,7 @@ export default function CartPage() {
                 Cash on Delivery (COD)
               </p>
               <p className="text-xs text-orange-600 mt-0.5">
-                Pay when your order arrives. Total:{" "}
+                Pay when your order arrives. Total:{' '}
                 <strong>{formatPrice(grandTotal)}</strong>
               </p>
             </div>
@@ -289,11 +328,11 @@ export default function CartPage() {
               disabled={placeMutation.isPending}
               className="w-full rounded-xl bg-[#D4380D] text-white hover:bg-[#b82e08]"
             >
-              {placeMutation.isPending ? "Placing Order..." : "Place Order"}
+              {placeMutation.isPending ? 'Placing Order...' : 'Place Order'}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

@@ -1,28 +1,26 @@
-"use client";
+'use client'
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
-import { Search, ChevronRight, Users } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { ChevronRight, Search, Users } from 'lucide-react'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatDate, formatPrice } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 export default function AdminCustomersPage() {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('')
 
-  const { data: customers = [], isLoading } =
-    api.customers.list.useQuery();
+  const { data: customers = [], isLoading } = api.customers.list.useQuery()
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return customers;
-    const q = search.toLowerCase();
+    if (!search.trim()) return customers
+    const q = search.toLowerCase()
     return customers.filter(
       (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q)
-    );
-  }, [customers, search]);
+        c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q),
+    )
+  }, [customers, search])
 
   if (isLoading) {
     return (
@@ -30,7 +28,7 @@ export default function AdminCustomersPage() {
         <Skeleton className="h-9 w-60 rounded-xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
-    );
+    )
   }
 
   return (
@@ -103,5 +101,5 @@ export default function AdminCustomersPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

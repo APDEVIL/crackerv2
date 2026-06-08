@@ -1,90 +1,94 @@
-"use client";
+'use client'
 
-import Link from "next/link";
 import {
-  TrendingUp, ShoppingBag, Users, Package,
-  ArrowUpRight, ArrowRight,
-} from "lucide-react";
-import { api } from "@/trpc/react";
-import { toProducts } from "@/lib/types";
-import { formatPrice, formatDate, cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+  ArrowRight,
+  ArrowUpRight,
+  Package,
+  ShoppingBag,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
+import Link from 'next/link'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toProducts } from '@/lib/types'
+import { cn, formatDate, formatPrice } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 const STATUS_COLOR: Record<string, string> = {
-  pending:   "bg-amber-100 text-amber-700",
-  confirmed: "bg-blue-100 text-blue-700",
-  shipped:   "bg-purple-100 text-purple-700",
-  delivered: "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-700",
-};
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  shipped: 'bg-purple-100 text-purple-700',
+  delivered: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
+}
 
 export default function DashboardPage() {
   const { data: rawOrders = [], isLoading: ordersLoading } =
-    api.orders.listAll.useQuery({});
+    api.orders.listAll.useQuery({})
 
   const { data: rawProducts = [], isLoading: productsLoading } =
-    api.products.list.useQuery({ onlyActive: false });
+    api.products.list.useQuery({ onlyActive: false })
 
   const { data: customers = [], isLoading: customersLoading } =
-    api.customers.list.useQuery();
+    api.customers.list.useQuery()
 
-  const products = toProducts(rawProducts);
-  const isLoading = ordersLoading || productsLoading || customersLoading;
+  const products = toProducts(rawProducts)
+  const isLoading = ordersLoading || productsLoading || customersLoading
 
   // ── Derived stats ──────────────────────────────────────────
   const totalRevenue = rawOrders
-    .filter((o) => o.paymentStatus === "paid")
-    .reduce((s, o) => s + o.total, 0);
+    .filter((o) => o.paymentStatus === 'paid')
+    .reduce((s, o) => s + o.total, 0)
 
   const recentOrders = [...rawOrders]
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
-    .slice(0, 5);
+    .slice(0, 5)
 
   const topProducts = [...products]
     .sort((a, b) => b.reviewCount - a.reviewCount)
-    .slice(0, 5);
+    .slice(0, 5)
 
   const statCards = [
     {
-      label: "Total Revenue",
+      label: 'Total Revenue',
       value: formatPrice(totalRevenue),
-      change: "+12.5%",
+      change: '+12.5%',
       up: true,
       icon: TrendingUp,
-      bg: "bg-orange-50",
-      iconColor: "text-[#D4380D]",
+      bg: 'bg-orange-50',
+      iconColor: 'text-[#D4380D]',
     },
     {
-      label: "Total Orders",
+      label: 'Total Orders',
       value: rawOrders.length,
-      change: "+8.2%",
+      change: '+8.2%',
       up: true,
       icon: ShoppingBag,
-      bg: "bg-purple-50",
-      iconColor: "text-purple-600",
+      bg: 'bg-purple-50',
+      iconColor: 'text-purple-600',
     },
     {
-      label: "Customers",
+      label: 'Customers',
       value: customers.length,
-      change: "+4.1%",
+      change: '+4.1%',
       up: true,
       icon: Users,
-      bg: "bg-blue-50",
-      iconColor: "text-blue-600",
+      bg: 'bg-blue-50',
+      iconColor: 'text-blue-600',
     },
     {
-      label: "Products",
+      label: 'Products',
       value: products.length,
-      change: "active",
+      change: 'active',
       up: null,
       icon: Package,
-      bg: "bg-green-50",
-      iconColor: "text-green-600",
+      bg: 'bg-green-50',
+      iconColor: 'text-green-600',
     },
-  ];
+  ]
 
   if (isLoading) {
     return (
@@ -99,7 +103,7 @@ export default function DashboardPage() {
           <Skeleton className="h-64 rounded-2xl" />
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -117,11 +121,11 @@ export default function DashboardPage() {
               </p>
               <div
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-xl",
-                  card.bg
+                  'flex h-8 w-8 items-center justify-center rounded-xl',
+                  card.bg,
                 )}
               >
-                <card.icon className={cn("h-4 w-4", card.iconColor)} />
+                <card.icon className={cn('h-4 w-4', card.iconColor)} />
               </div>
             </div>
             <p className="mb-1 font-serif text-2xl font-black text-gray-900">
@@ -130,12 +134,12 @@ export default function DashboardPage() {
             {card.up !== null ? (
               <p
                 className={cn(
-                  "flex items-center gap-1 text-xs font-medium",
-                  card.up ? "text-green-600" : "text-red-500"
+                  'flex items-center gap-1 text-xs font-medium',
+                  card.up ? 'text-green-600' : 'text-red-500',
                 )}
               >
                 <ArrowUpRight
-                  className={cn("h-3 w-3", !card.up && "rotate-180")}
+                  className={cn('h-3 w-3', !card.up && 'rotate-180')}
                 />
                 {card.change} this month
               </p>
@@ -177,13 +181,14 @@ export default function DashboardPage() {
                       {order.orderNumber}
                     </p>
                     <p className="text-xs text-gray-400">
-                      {order.addrName} · {formatDate(order.createdAt.toString())}
+                      {order.addrName} ·{' '}
+                      {formatDate(order.createdAt.toString())}
                     </p>
                   </div>
                   <span
                     className={cn(
-                      "flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize",
-                      STATUS_COLOR[order.status]
+                      'flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize',
+                      STATUS_COLOR[order.status],
                     )}
                   >
                     {order.status}
@@ -224,7 +229,9 @@ export default function DashboardPage() {
                   <p className="truncate text-sm font-medium text-gray-800">
                     {p.name}
                   </p>
-                  <p className="text-xs text-gray-400">{p.reviewCount} reviews</p>
+                  <p className="text-xs text-gray-400">
+                    {p.reviewCount} reviews
+                  </p>
                 </div>
                 <span className="flex-shrink-0 text-sm font-bold text-[#D4380D]">
                   {formatPrice(p.price)}
@@ -238,10 +245,10 @@ export default function DashboardPage() {
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { href: "/admin/products/new", label: "Add Product", emoji: "➕" },
-          { href: "/admin/orders",       label: "View Orders", emoji: "📦" },
-          { href: "/admin/customers",    label: "Customers",   emoji: "👥" },
-          { href: "/admin/slides",       label: "Edit Slides", emoji: "🖼️" },
+          { href: '/admin/products/new', label: 'Add Product', emoji: '➕' },
+          { href: '/admin/orders', label: 'View Orders', emoji: '📦' },
+          { href: '/admin/customers', label: 'Customers', emoji: '👥' },
+          { href: '/admin/slides', label: 'Edit Slides', emoji: '🖼️' },
         ].map((action) => (
           <Link
             key={action.href}
@@ -256,5 +263,5 @@ export default function DashboardPage() {
         ))}
       </div>
     </div>
-  );
+  )
 }

@@ -1,32 +1,42 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard, Package, Users, ShoppingBag,
-  ChevronRight, Flame, LogOut, Settings, BarChart3,
+  BarChart3,
+  ChevronRight,
+  Flame,
   Image as ImageIcon,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { authClient } from "@/server/better-auth/client";
+  LayoutDashboard,
+  LogOut,
+  Package,
+  ShoppingBag,
+  Users,
+} from 'lucide-react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { authClient } from '@/server/better-auth/client'
 
 const navItems = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Products",  href: "/admin/products",  icon: Package          },
-  { label: "Slides",    href: "/admin/slides",    icon: ImageIcon        },
-  { label: "Orders",    href: "/admin/orders",    icon: ShoppingBag      },
-  { label: "Customers", href: "/admin/customers", icon: Users            },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3, disabled: true },
-];
+  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'Products', href: '/admin/products', icon: Package },
+  { label: 'Slides', href: '/admin/slides', icon: ImageIcon },
+  { label: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+  { label: 'Customers', href: '/admin/customers', icon: Users },
+  {
+    label: 'Analytics',
+    href: '/admin/analytics',
+    icon: BarChart3,
+    disabled: true,
+  },
+]
 
 export function AdminSidebar() {
-  const pathname = usePathname();
-  const router   = useRouter();
+  const pathname = usePathname()
+  const router = useRouter()
 
   async function handleSignOut() {
-    await authClient.signOut();
-    router.push("/login");
+    await authClient.signOut()
+    router.push('/login')
   }
 
   return (
@@ -51,29 +61,28 @@ export function AdminSidebar() {
         </p>
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            pathname.startsWith(item.href + "/");
-          const Icon = item.icon;
+            pathname === item.href || pathname.startsWith(item.href + '/')
+          const Icon = item.icon
 
           return (
             <Link
               key={item.href}
-              href={item.disabled ? "#" : item.href}
+              href={item.disabled ? '#' : item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
                 isActive
-                  ? "bg-orange-600/15 text-orange-400 border border-orange-600/20"
-                  : "text-zinc-400 hover:bg-zinc-800/70 hover:text-zinc-100",
+                  ? 'bg-orange-600/15 text-orange-400 border border-orange-600/20'
+                  : 'text-zinc-400 hover:bg-zinc-800/70 hover:text-zinc-100',
                 item.disabled &&
-                  "opacity-40 cursor-not-allowed pointer-events-none"
+                  'opacity-40 cursor-not-allowed pointer-events-none',
               )}
             >
               <Icon
                 className={cn(
-                  "w-4 h-4 shrink-0",
+                  'w-4 h-4 shrink-0',
                   isActive
-                    ? "text-orange-400"
-                    : "text-zinc-500 group-hover:text-zinc-300"
+                    ? 'text-orange-400'
+                    : 'text-zinc-500 group-hover:text-zinc-300',
                 )}
               />
               <span className="flex-1">{item.label}</span>
@@ -81,7 +90,7 @@ export function AdminSidebar() {
                 <ChevronRight className="w-3.5 h-3.5 text-orange-500/70" />
               )}
             </Link>
-          );
+          )
         })}
       </nav>
 
@@ -105,5 +114,5 @@ export function AdminSidebar() {
         </Link>
       </div>
     </aside>
-  );
+  )
 }

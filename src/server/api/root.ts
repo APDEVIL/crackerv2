@@ -1,12 +1,12 @@
-import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import { productsRouter } from "./routers/products";
-import { categoriesRouter } from "./routers/categories";
-import { slidesRouter } from "./routers/slides";
-import { cartRouter } from "./routers/cart";
-import { wishlistRouter } from "./routers/wishlist";
-import { ordersRouter } from "./routers/orders";
-import { customersRouter } from "./routers/customers";
-import { profileRouter } from "./routers/profile";
+import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
+import { cartRouter } from './routers/cart'
+import { categoriesRouter } from './routers/categories'
+import { customersRouter } from './routers/customers'
+import { ordersRouter } from './routers/orders'
+import { productsRouter } from './routers/products'
+import { profileRouter } from './routers/profile'
+import { slidesRouter } from './routers/slides'
+import { wishlistRouter } from './routers/wishlist'
 
 export const appRouter = createTRPCRouter({
   products: productsRouter,
@@ -17,7 +17,7 @@ export const appRouter = createTRPCRouter({
   orders: ordersRouter,
   customers: customersRouter,
   profile: profileRouter,
-});
+})
 
-export type AppRouter = typeof appRouter;
-export const createCaller = createCallerFactory(appRouter);
+export type AppRouter = typeof appRouter
+export const createCaller = createCallerFactory(appRouter)

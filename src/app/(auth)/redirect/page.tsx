@@ -1,28 +1,28 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/server/better-auth/client";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { authClient } from '@/server/better-auth/client'
 
 export default function AuthRedirectPage() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter()
+  const { data: session, isPending } = authClient.useSession()
 
   useEffect(() => {
-    if (isPending) return;
+    if (isPending) return
 
     if (!session) {
-      router.replace("/login");
-      return;
+      router.replace('/login')
+      return
     }
 
-    if (session.user?.role === "admin") {
-      router.replace("/admin/dashboard");
+    if (session.user?.role === 'admin') {
+      router.replace('/admin/dashboard')
     } else {
-      router.replace("/");
+      router.replace('/')
     }
-  }, [session, isPending, router]);
+  }, [session, isPending, router])
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -31,5 +31,5 @@ export default function AuthRedirectPage() {
         <p className="text-sm text-gray-500">Signing you in...</p>
       </div>
     </div>
-  );
+  )
 }

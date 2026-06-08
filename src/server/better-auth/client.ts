@@ -1,6 +1,6 @@
-import { createAuthClient } from "better-auth/react";
-import { inferAdditionalFields } from "better-auth/client/plugins";
-import type { auth } from "./config";
+import { inferAdditionalFields } from 'better-auth/client/plugins'
+import { createAuthClient } from 'better-auth/react'
+import type { auth } from './config'
 
 export const authClient = createAuthClient({
   plugins: [
@@ -8,4 +8,4 @@ export const authClient = createAuthClient({
     // so session.user.role is typed and populated on the client
     inferAdditionalFields<typeof auth>(),
   ],
-});
+})

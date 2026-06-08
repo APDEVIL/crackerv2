@@ -1,100 +1,117 @@
-"use client";
+'use client'
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
 import {
-  Plus, Search, Pencil, Trash2, Eye,
-  ChevronUp, ChevronDown, Package,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Package,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from 'lucide-react'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { toProducts, type Product } from "@/lib/types";
-import { formatPrice, cn } from "@/lib/utils";
-import { toast } from "sonner";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toProducts } from '@/lib/types'
+import { cn, formatPrice } from '@/lib/utils'
+import { api } from '@/trpc/react'
 
 const TAG_COLOR: Record<string, string> = {
-  "Best Seller": "bg-yellow-100 text-yellow-800",
-  "New": "bg-sky-100 text-sky-800",
-  "Sale": "bg-red-100 text-red-700",
-  "Popular": "bg-orange-100 text-orange-800",
-};
+  'Best Seller': 'bg-yellow-100 text-yellow-800',
+  New: 'bg-sky-100 text-sky-800',
+  Sale: 'bg-red-100 text-red-700',
+  Popular: 'bg-orange-100 text-orange-800',
+}
 
-type SortKey = "name" | "price" | "stock";
+type SortKey = 'name' | 'price' | 'stock'
 
 export default function AdminProductsPage() {
-  const utils = api.useUtils();
+  const utils = api.useUtils()
 
   const { data: rawProducts = [], isLoading: productsLoading } =
-    api.products.list.useQuery({ onlyActive: false });
+    api.products.list.useQuery({ onlyActive: false })
 
   const { data: categories = [], isLoading: categoriesLoading } =
-    api.categories.list.useQuery();
+    api.categories.list.useQuery()
 
-  const products = toProducts(rawProducts);
+  const products = toProducts(rawProducts)
 
   const deleteMutation = api.products.delete.useMutation({
     onSuccess: () => {
-      utils.products.list.invalidate();
-      toast.success("Product deleted");
-      setDeleteId(null);
+      utils.products.list.invalidate()
+      toast.success('Product deleted')
+      setDeleteId(null)
     },
     onError: (err) => toast.error(err.message),
-  });
+  })
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('all')
+  const [sortKey, setSortKey] = useState<SortKey>('name')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
-    let list = [...products];
+    let list = [...products]
 
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.toLowerCase()
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
-          p.category.name.toLowerCase().includes(q)
-      );
+          p.category.name.toLowerCase().includes(q),
+      )
     }
 
-    if (category !== "all") {
-      list = list.filter((p) => p.categorySlug === category);
+    if (category !== 'all') {
+      list = list.filter((p) => p.categorySlug === category)
     }
 
     list.sort((a, b) => {
-      const av = String(a[sortKey] ?? "");
-      const bv = String(b[sortKey] ?? "");
-      return sortDir === "asc"
-        ? av.localeCompare(bv)
-        : bv.localeCompare(av);
-    });
+      const av = String(a[sortKey] ?? '')
+      const bv = String(b[sortKey] ?? '')
+      return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av)
+    })
 
-    return list;
-  }, [products, search, category, sortKey, sortDir]);
+    return list
+  }, [products, search, category, sortKey, sortDir])
 
   function toggleSort(key: SortKey) {
-    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else { setSortKey(key); setSortDir("asc"); }
+    if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
   }
 
   function SortIcon({ col }: { col: SortKey }) {
-    if (sortKey !== col) return <ChevronUp className="h-3 w-3 text-gray-300" />;
-    return sortDir === "asc"
-      ? <ChevronUp className="h-3 w-3 text-[#D4380D]" />
-      : <ChevronDown className="h-3 w-3 text-[#D4380D]" />;
+    if (sortKey !== col) return <ChevronUp className="h-3 w-3 text-gray-300" />
+    return sortDir === 'asc' ? (
+      <ChevronUp className="h-3 w-3 text-[#D4380D]" />
+    ) : (
+      <ChevronDown className="h-3 w-3 text-[#D4380D]" />
+    )
   }
 
-  const isLoading = productsLoading || categoriesLoading;
+  const isLoading = productsLoading || categoriesLoading
 
   if (isLoading) {
     return (
@@ -102,7 +119,7 @@ export default function AdminProductsPage() {
         <Skeleton className="h-9 w-full rounded-xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
-    );
+    )
   }
 
   return (
@@ -136,7 +153,9 @@ export default function AdminProductsPage() {
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((c) => (
-              <SelectItem key={c.id} value={c.slug}>{c.name}</SelectItem>
+              <SelectItem key={c.id} value={c.slug}>
+                {c.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -149,18 +168,18 @@ export default function AdminProductsPage() {
             <thead className="border-b border-orange-100 bg-gray-50/70">
               <tr>
                 {[
-                  { label: "Product", col: "name" as SortKey },
-                  { label: "Category", col: null },
-                  { label: "Price", col: "price" as SortKey },
-                  { label: "Stock", col: "stock" as SortKey },
-                  { label: "Tag", col: null },
+                  { label: 'Product', col: 'name' as SortKey },
+                  { label: 'Category', col: null },
+                  { label: 'Price', col: 'price' as SortKey },
+                  { label: 'Stock', col: 'stock' as SortKey },
+                  { label: 'Tag', col: null },
                 ].map(({ label, col }) => (
                   <th
                     key={label}
                     onClick={() => col && toggleSort(col)}
                     className={cn(
-                      "px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500",
-                      col && "cursor-pointer select-none hover:text-gray-700"
+                      'px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500',
+                      col && 'cursor-pointer select-none hover:text-gray-700',
                     )}
                   >
                     <div className="flex items-center gap-1">
@@ -184,11 +203,18 @@ export default function AdminProductsPage() {
                 </tr>
               ) : (
                 filtered.map((product) => (
-                  <tr key={product.id} className="hover:bg-orange-50/30 transition">
+                  <tr
+                    key={product.id}
+                    className="hover:bg-orange-50/30 transition"
+                  >
                     <td className="px-4 py-3">
                       <div>
-                        <p className="font-medium text-gray-900">{product.name}</p>
-                        <p className="text-xs text-gray-400">{product.packSize}</p>
+                        <p className="font-medium text-gray-900">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {product.packSize}
+                        </p>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-gray-600">
@@ -205,23 +231,28 @@ export default function AdminProductsPage() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={cn(
-                        "font-medium",
-                        product.stock === 0
-                          ? "text-red-500"
-                          : product.stock < 20
-                          ? "text-amber-600"
-                          : "text-green-600"
-                      )}>
+                      <span
+                        className={cn(
+                          'font-medium',
+                          product.stock === 0
+                            ? 'text-red-500'
+                            : product.stock < 20
+                              ? 'text-amber-600'
+                              : 'text-green-600',
+                        )}
+                      >
                         {product.stock}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       {product.tag ? (
-                        <span className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                          TAG_COLOR[product.tag] ?? "bg-gray-100 text-gray-600"
-                        )}>
+                        <span
+                          className={cn(
+                            'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                            TAG_COLOR[product.tag] ??
+                              'bg-gray-100 text-gray-600',
+                          )}
+                        >
                           {product.tag}
                         </span>
                       ) : (
@@ -278,15 +309,17 @@ export default function AdminProductsPage() {
               Cancel
             </Button>
             <Button
-              onClick={() => deleteId && deleteMutation.mutate({ id: deleteId })}
+              onClick={() =>
+                deleteId && deleteMutation.mutate({ id: deleteId })
+              }
               disabled={deleteMutation.isPending}
               className="bg-red-500 text-white hover:bg-red-600"
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

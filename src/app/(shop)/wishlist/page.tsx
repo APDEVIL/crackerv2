@@ -1,16 +1,15 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/components/shop/ProductCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
-import { toProduct } from "@/lib/types";
+import { Heart } from 'lucide-react'
+import Link from 'next/link'
+import { ProductCard } from '@/components/shop/ProductCard'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toProduct } from '@/lib/types'
+import { api } from '@/trpc/react'
 
 export default function WishlistPage() {
-  const { data: wishlistItems = [], isLoading } =
-    api.wishlist.list.useQuery();
+  const { data: wishlistItems = [], isLoading } = api.wishlist.list.useQuery()
 
   if (isLoading) {
     return (
@@ -30,7 +29,7 @@ export default function WishlistPage() {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   if (wishlistItems.length === 0) {
@@ -51,7 +50,7 @@ export default function WishlistPage() {
           </Button>
         </Link>
       </div>
-    );
+    )
   }
 
   return (
@@ -68,12 +67,9 @@ export default function WishlistPage() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {wishlistItems.map((item) => (
-          <ProductCard
-            key={item.id}
-            cracker={toProduct(item.product)}
-          />
+          <ProductCard key={item.id} cracker={toProduct(item.product)} />
         ))}
       </div>
     </div>
-  );
+  )
 }

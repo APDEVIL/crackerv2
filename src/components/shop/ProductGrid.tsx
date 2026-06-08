@@ -1,28 +1,28 @@
-"use client";
+'use client'
 
-import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ProductCard } from "./ProductCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { type Product, type Category } from "@/lib/types";
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { type Category, type Product } from '@/lib/types'
+import { ProductCard } from './ProductCard'
 
 type Props = {
   // ✅ uses Product instead of Cracker
-  crackers: Product[];
-  categories: Category[];
-  title?: string;
-  showFilters?: boolean;
-};
+  crackers: Product[]
+  categories: Category[]
+  title?: string
+  showFilters?: boolean
+}
 
-type SortKey = "default" | "price-asc" | "price-desc" | "rating" | "name";
+type SortKey = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'name'
 
 export function ProductGrid({
   crackers,
@@ -30,55 +30,57 @@ export function ProductGrid({
   title,
   showFilters = true,
 }: Props) {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState<SortKey>("default");
-  const [maxPrice, setMaxPrice] = useState("all");
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('all')
+  const [sort, setSort] = useState<SortKey>('default')
+  const [maxPrice, setMaxPrice] = useState('all')
 
   const filtered = useMemo(() => {
-    let list = [...crackers];
+    let list = [...crackers]
 
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.toLowerCase()
       list = list.filter(
         (c) =>
           c.name.toLowerCase().includes(q) ||
-          c.category.name.toLowerCase().includes(q)
-      );
+          c.category.name.toLowerCase().includes(q),
+      )
     }
 
-    if (category !== "all") {
-      list = list.filter((c) => c.categorySlug === category);
+    if (category !== 'all') {
+      list = list.filter((c) => c.categorySlug === category)
     }
 
-    if (maxPrice !== "all") {
-      list = list.filter((c) => c.price <= parseInt(maxPrice));
+    if (maxPrice !== 'all') {
+      list = list.filter((c) => c.price <= parseInt(maxPrice))
     }
 
     switch (sort) {
-      case "price-asc":
-        list.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        list.sort((a, b) => b.price - a.price);
-        break;
-      case "rating":
-        list.sort((a, b) => b.rating - a.rating);
-        break;
-      case "name":
-        list.sort((a, b) => a.name.localeCompare(b.name));
-        break;
+      case 'price-asc':
+        list.sort((a, b) => a.price - b.price)
+        break
+      case 'price-desc':
+        list.sort((a, b) => b.price - a.price)
+        break
+      case 'rating':
+        list.sort((a, b) => b.rating - a.rating)
+        break
+      case 'name':
+        list.sort((a, b) => a.name.localeCompare(b.name))
+        break
     }
 
-    return list;
-  }, [crackers, search, category, sort, maxPrice]);
+    return list
+  }, [crackers, search, category, sort, maxPrice])
 
   return (
     <div>
       {(title || showFilters) && (
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {title && (
-            <h2 className="font-serif text-xl font-bold text-gray-900">{title}</h2>
+            <h2 className="font-serif text-xl font-bold text-gray-900">
+              {title}
+            </h2>
           )}
 
           {showFilters && (
@@ -120,10 +122,7 @@ export function ProductGrid({
                 </SelectContent>
               </Select>
 
-              <Select
-                value={sort}
-                onValueChange={(v) => setSort(v as SortKey)}
-              >
+              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
                 <SelectTrigger className="h-8 w-36 text-xs">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -162,7 +161,7 @@ export function ProductGrid({
         </p>
       )}
     </div>
-  );
+  )
 }
 
 export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
@@ -180,5 +179,5 @@ export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
         </div>
       ))}
     </div>
-  );
+  )
 }
