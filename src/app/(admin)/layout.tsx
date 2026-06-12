@@ -11,6 +11,7 @@ import {
   Package,
   ShoppingBag,
   Users,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -43,14 +44,14 @@ const NAV = [
   },
 ]
 
-function Sidebar({
+function SidebarContent({
   collapsed,
   onToggle,
-  userName,
+  onNavClick,
 }: {
   collapsed: boolean
   onToggle: () => void
-  userName: string
+  onNavClick?: () => void
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -61,12 +62,7 @@ function Sidebar({
   }
 
   return (
-    <aside
-      className={cn(
-        'flex h-screen flex-col border-r border-orange-100 bg-white transition-all duration-300',
-        collapsed ? 'w-16' : 'w-56',
-      )}
-    >
+    <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-14 items-center justify-between border-b border-orange-100 px-4">
         {!collapsed && (
@@ -110,6 +106,7 @@ function Sidebar({
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onNavClick}
                     className={cn(
                       'flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition',
                       active
@@ -133,6 +130,7 @@ function Sidebar({
       <div className="border-t border-orange-100 p-3 space-y-0.5">
         <Link
           href="/"
+          onClick={onNavClick}
           className={cn(
             'flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition',
             collapsed && 'justify-center',
@@ -154,7 +152,7 @@ function Sidebar({
           {!collapsed && <span>Sign Out</span>}
         </button>
       </div>
-    </aside>
+    </div>
   )
 }
 
@@ -164,8 +162,14 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [])
 
   // ✅ Session guard
   const { data: session, isPending } = authClient.useSession()
@@ -194,7 +198,6 @@ export default function AdminLayout({
     return 'Admin'
   })()
 
-  // ✅ Show spinner while checking session
   if (isPending || !session || session.user?.role !== 'admin') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#faf7f4]">
@@ -208,18 +211,65 @@ export default function AdminLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#faf7f4]">
-      <Sidebar
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((c) => !c)}
-        userName={userName}
-      />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* ── DESKTOP sidebar ─────────────────────────────────── */}
+      <aside
+        className={cn(
+          'hidden md:flex h-screen flex-col border-r border-orange-100 bg-white transition-all duration-300 shrink-0',
+          collapsed ? 'w-16' : 'w-56',
+        )}
+      >
+        <SidebarContent
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((c) => !c)}
+        />
+      </aside>
+
+      {/* ── MOBILE drawer backdrop ───────────────────────────── */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* ── MOBILE drawer ────────────────────────────────────── */}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-orange-100 flex flex-col transition-transform duration-300 md:hidden',
+          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        {/* Close button */}
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="absolute right-3 top-3.5 flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <SidebarContent
+          collapsed={false}
+          onToggle={() => setMobileOpen(false)}
+          onNavClick={() => setMobileOpen(false)}
+        />
+      </aside>
+
+      {/* ── Main content ─────────────────────────────────────── */}
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         {/* Top bar */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-orange-100 bg-white px-6">
-          <h1 className="font-serif text-lg font-black text-gray-900">
-            {pageTitle}
-          </h1>
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-orange-100 bg-white px-4 md:px-6">
+          <div className="flex items-center gap-3">
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 md:hidden"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <h1 className="font-serif text-lg font-black text-gray-900">
+              {pageTitle}
+            </h1>
+          </div>
           <div className="flex items-center gap-2">
             <button className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50">
               <Bell className="h-3.5 w-3.5" />
@@ -234,7 +284,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
 
       <Toaster position="top-right" />
