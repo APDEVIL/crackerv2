@@ -1,5 +1,4 @@
 'use client'
-
 import {
   Heart,
   Package,
@@ -30,7 +29,6 @@ const fallbackGradients: Record<string, string> = {
   sparklers: 'from-orange-950 to-red-950',
   chakkar: 'from-neutral-900 to-stone-950',
 }
-
 const fallbackEmoji: Record<string, string> = {
   rocket: '🚀',
   bijli: '⚡',
@@ -46,26 +44,21 @@ export default function ProductDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-
   const { data: raw, isLoading, error } = api.products.getById.useQuery({ id })
   const cracker = raw ? toProduct(raw) : null
-
   const { data: rawRelated = [] } = api.products.getByCategory.useQuery(
     { slug: cracker?.categorySlug ?? '' },
     { enabled: !!cracker },
   )
-
   const related = toProducts(rawRelated)
     .filter((c) => c.id !== id)
     .slice(0, 4)
-
   const { addToCart, toggleWishlist, isWishlisted } = useStore()
   const [qty, setQty] = useState(1)
   const [activeImg, setActiveImg] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [added, setAdded] = useState(false)
 
-  // ── Loading state ──────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="min-h-screen px-4 py-6 pb-16">
@@ -83,7 +76,6 @@ export default function ProductDetailPage({
       </div>
     )
   }
-
   if (error || !cracker) return notFound()
 
   const wishlisted = isWishlisted(cracker.id)
@@ -93,6 +85,7 @@ export default function ProductDetailPage({
   const gradient =
     fallbackGradients[cracker.categorySlug] ?? 'from-neutral-900 to-stone-950'
   const emoji = fallbackEmoji[cracker.categorySlug] ?? '🎆'
+  const currentImage = cracker.images[activeImg]
 
   function handleAdd() {
     addToCart(cracker!, qty)
@@ -135,26 +128,26 @@ export default function ProductDetailPage({
               />
             ) : (
               <div className="relative aspect-square w-full overflow-hidden rounded-2xl">
-                <div
-                  className={cn(
-                    'flex h-full w-full items-center justify-center bg-gradient-to-br',
-                    gradient,
-                  )}
-                >
-                  <span className="text-8xl">{emoji}</span>
-                </div>
-                {cracker.images[activeImg]?.includes('utfs.io') && (
+                {currentImage ? (
                   <Image
-                    src={cracker.images[activeImg]!}
+                    src={currentImage}
                     alt={cracker.name}
                     fill
                     className="object-cover"
                     priority
                   />
+                ) : (
+                  <div
+                    className={cn(
+                      'flex h-full w-full items-center justify-center bg-gradient-to-br',
+                      gradient,
+                    )}
+                  >
+                    <span className="text-8xl">{emoji}</span>
+                  </div>
                 )}
               </div>
             )}
-
             {cracker.videoUrl && !showVideo && (
               <button
                 onClick={() => setShowVideo(true)}
@@ -177,7 +170,7 @@ export default function ProductDetailPage({
           {/* Thumbnail strip */}
           {(cracker.images.length > 1 || cracker.videoUrl) && (
             <div className="flex gap-2">
-              {cracker.images.map((_, i) => (
+              {cracker.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => {
@@ -191,14 +184,23 @@ export default function ProductDetailPage({
                       : 'border-transparent hover:border-orange-200',
                   )}
                 >
-                  <div
-                    className={cn(
-                      'flex h-full w-full items-center justify-center bg-gradient-to-br text-2xl',
-                      gradient,
-                    )}
-                  >
-                    {emoji}
-                  </div>
+                  {img ? (
+                    <Image
+                      src={img}
+                      alt={`${cracker.name} ${i + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div
+                      className={cn(
+                        'flex h-full w-full items-center justify-center bg-gradient-to-br text-2xl',
+                        gradient,
+                      )}
+                    >
+                      {emoji}
+                    </div>
+                  )}
                 </button>
               ))}
               {cracker.videoUrl && (
@@ -220,7 +222,6 @@ export default function ProductDetailPage({
 
         {/* ── Right: Details ─────────────────────────────────── */}
         <div>
-          {/* Tag + category */}
           <div className="mb-3 flex items-center gap-2">
             <Link
               href={`/products?category=${cracker.categorySlug}`}
@@ -244,12 +245,10 @@ export default function ProductDetailPage({
             )}
           </div>
 
-          {/* Name */}
           <h1 className="mb-1 font-serif text-3xl font-black text-gray-900">
             {cracker.name}
           </h1>
 
-          {/* Rating */}
           <div className="mb-4 flex items-center gap-2">
             <div className="flex">
               {[1, 2, 3, 4, 5].map((s) => (
@@ -269,7 +268,6 @@ export default function ProductDetailPage({
             </span>
           </div>
 
-          {/* Price */}
           <div className="mb-5 flex items-baseline gap-3">
             <span className="font-serif text-3xl font-black text-[#D4380D]">
               {formatPrice(cracker.price)}
@@ -286,12 +284,10 @@ export default function ProductDetailPage({
             )}
           </div>
 
-          {/* Description */}
           <p className="mb-5 leading-relaxed text-gray-600">
             {cracker.description}
           </p>
 
-          {/* Pack info */}
           <div className="mb-5 flex items-center gap-2 rounded-xl bg-orange-50 px-4 py-3">
             <Package className="h-4 w-4 text-orange-600" />
             <span className="text-sm font-medium text-orange-800">
@@ -304,7 +300,6 @@ export default function ProductDetailPage({
 
           <Separator className="mb-5" />
 
-          {/* Qty + Add to Cart */}
           <div className="mb-4 flex items-center gap-3">
             <div className="flex items-center rounded-xl border border-gray-200">
               <button
@@ -323,7 +318,6 @@ export default function ProductDetailPage({
                 +
               </button>
             </div>
-
             <Button
               onClick={handleAdd}
               disabled={cracker.stock === 0}
@@ -341,7 +335,6 @@ export default function ProductDetailPage({
                   ? 'Out of Stock'
                   : 'Add to Cart'}
             </Button>
-
             <button
               onClick={() => toggleWishlist(cracker.id, cracker.name)}
               className={cn(
@@ -356,7 +349,6 @@ export default function ProductDetailPage({
             </button>
           </div>
 
-          {/* Trust badges */}
           <div className="grid grid-cols-2 gap-2">
             {[
               { icon: Shield, text: 'Safe & certified' },
@@ -374,7 +366,6 @@ export default function ProductDetailPage({
         </div>
       </div>
 
-      {/* Related Products */}
       {related.length > 0 && (
         <section className="mt-12 px-4">
           <h2 className="mb-4 font-serif text-xl font-black text-gray-900">

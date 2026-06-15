@@ -12,6 +12,10 @@ const config = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'utfs.io',
         pathname: '/f/*',
       },
@@ -19,6 +23,11 @@ const config = {
         protocol: 'https',
         hostname: 'uploadthing.com',
         pathname: '/f/*',
+      },
+      // 👇 Added to support the dynamic product placeholders from seed.ts
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
     ],
   },

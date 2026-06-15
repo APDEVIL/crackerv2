@@ -51,16 +51,10 @@ export function ProductCard({ cracker, compact = false }: Props) {
   const [qty, setQty] = useState(cartItem?.quantity ?? 1)
   const isFirstRender = useRef(true)
 
-  // Keep local qty in sync when cart updates externally
   useEffect(() => {
     if (cartItem) setQty(cartItem.quantity)
   }, [cartItem])
 
-  // ✅ FIXED: Only calls updateQty for items already in cart.
-  //    Never calls addToCart — that only happens via explicit handleAddClick.
-  //    This was the root cause of cart.add receiving {} — the old else branch
-  //    called addToCart(cracker, qty) on every +/− click before the item was
-  //    in cart, with a stale cracker reference where product.id was undefined.
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
@@ -69,7 +63,6 @@ export function ProductCard({ cracker, compact = false }: Props) {
     if (inCart) {
       updateQty(cracker.id, qty)
     }
-    // No else — addToCart is ONLY called from handleAddClick
   }, [qty, inCart, cracker.id, updateQty])
 
   function handleDecrement() {
@@ -85,7 +78,6 @@ export function ProductCard({ cracker, compact = false }: Props) {
     setQty(val)
   }
 
-  // ✅ Sole place addToCart is ever called from this component
   function handleAddClick() {
     if (!inCart) {
       addToCart(cracker, qty)
@@ -93,6 +85,7 @@ export function ProductCard({ cracker, compact = false }: Props) {
   }
 
   const lineTotal = cracker.price * qty
+  const imageSrc = cracker.images[0]
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-orange-100 bg-white transition-shadow hover:shadow-md hover:shadow-orange-100">
@@ -132,9 +125,9 @@ export function ProductCard({ cracker, compact = false }: Props) {
             compact ? 'h-28' : 'h-36',
           )}
         >
-          {cracker.images[0] && cracker.images[0].includes('utfs.io') ? (
+          {imageSrc ? (
             <Image
-              src={cracker.images[0]}
+              src={imageSrc}
               alt={cracker.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
